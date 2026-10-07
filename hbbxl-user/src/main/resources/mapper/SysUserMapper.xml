@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hbbxl.user.dao.SysUserMapper">
+
+    <select id="pageList" resultType="java.util.Map">
+        SELECT u.id          AS id,
+               u.username    AS username,
+               u.real_name   AS realName,
+               u.phone       AS phone,
+               u.status      AS status,
+               r.code        AS roleCode,
+               r.name        AS roleName,
+               u.create_time AS createTime
+        FROM sys_user u
+        LEFT JOIN sys_user_role ur ON ur.user_id = u.id
+        LEFT JOIN sys_role r ON r.id = ur.role_id
+        WHERE u.deleted = 0
+        <if test="keyword != null and keyword != ''">
+          AND (u.username LIKE CONCAT('%', #{keyword}, '%')
+            OR u.real_name LIKE CONCAT('%', #{keyword}, '%')
+            OR u.phone LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY u.id
+    </select>
+
+</mapper>
