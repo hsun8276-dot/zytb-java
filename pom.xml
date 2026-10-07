@@ -9,8 +9,8 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Hbbxl Volunteer Platform</name>
-    <description>河北省高考志愿填报系统</description>
+    <name>Zytb Volunteer Platform</name>
+    <description>全国高考志愿填报系统</description>
 
     <modules>
         <module>hbbxl-common/hbbxl-common-core</module>
