@@ -95,7 +95,14 @@ public class UserServiceImpl implements UserService {
         LocalDateTime base = user.getExpireTime() != null && user.getExpireTime().isAfter(LocalDateTime.now())
                 ? user.getExpireTime() : LocalDateTime.now();
         user.setExpireTime(base.plusYears(years));
+        // 到期自动停用过的账号, 重新开通时恢复启用
+        user.setStatus(1);
         userMapper.updateById(user);
+    }
+
+    @Override
+    public int autoDisableExpired() {
+        return userMapper.disableExpired();
     }
 
     @Override

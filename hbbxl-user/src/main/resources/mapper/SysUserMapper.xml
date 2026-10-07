@@ -24,4 +24,11 @@
         ORDER BY u.id
     </select>
 
+    <update id="disableExpired">
+        UPDATE sys_user
+        SET status = 0
+        WHERE deleted = 0 AND status = 1
+          AND expire_time IS NOT NULL AND expire_time &lt; NOW()
+    </update>
+
 </mapper>
