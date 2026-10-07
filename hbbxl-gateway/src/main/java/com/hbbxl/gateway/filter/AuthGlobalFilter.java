@@ -35,6 +35,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     /** 白名单路径前缀（不校验 JWT） */
     private static final List<String> WHITE_LIST = Arrays.asList(
             "/api/auth/login",
+            "/api/auth/captcha",
             "/api/auth/register",
             "/api/auth/logout",
             // 获取 RSA 公钥（登录前需先获取）

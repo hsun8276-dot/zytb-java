@@ -1,6 +1,7 @@
 package com.hbbxl.auth.controller;
 
 import com.hbbxl.auth.service.AuthService;
+import com.hbbxl.auth.service.CaptchaService;
 import com.hbbxl.common.core.result.R;
 import com.hbbxl.common.security.utils.RsaUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,9 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /** 认证控制器(账号由管理员开通, 无自助注册) */
 @Tag(name = "认证管理")
 @RestController
@@ -19,10 +23,25 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final CaptchaService captchaService;
 
-    @Operation(summary = "登录(支持RSA加密密码传输)")
+    @Operation(summary = "获取图形校验码")
+    @GetMapping("/captcha")
+    public R<Map<String, String>> captcha() {
+        String[] c = captchaService.generate();
+        Map<String, String> data = new HashMap<>();
+        data.put("captchaId", c[0]);
+        data.put("image", c[1]);
+        return R.ok(data);
+    }
+
+    @Operation(summary = "登录(支持RSA加密密码传输, 需图形校验码)")
     @PostMapping("/login")
     public R<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        // 校验码一次性校验(忽略大小写)
+        if (!captchaService.verify(request.getCaptchaId(), request.getCaptchaCode())) {
+            return R.fail("校验码错误!");
+        }
         String password = request.getPassword();
         if (request.getEncryptedPassword() != null && !request.getEncryptedPassword().isBlank()) {
             try {
@@ -64,6 +83,12 @@ public class AuthController {
 
         /** RSA加密后的密码(优先于password字段) */
         private String encryptedPassword;
+
+        /** 图形校验码ID */
+        private String captchaId;
+
+        /** 用户输入的校验码 */
+        private String captchaCode;
     }
 
     @Data
