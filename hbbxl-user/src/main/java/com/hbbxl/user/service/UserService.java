@@ -23,4 +23,7 @@ public interface UserService {
 
     /** 到期自动停用(定时任务): expire_time已过且仍启用的账号置为停用 */
     int autoDisableExpired();
+
+    /** 用户详情(本人或管理员可查) */
+    Map<String, Object> detail(Long userId, Long currentUserId, String role);
 }

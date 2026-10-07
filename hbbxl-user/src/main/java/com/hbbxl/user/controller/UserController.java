@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.hbbxl.common.core.auth.RequireRole;
 import com.hbbxl.common.core.constant.CommonConstants;
 import com.hbbxl.common.core.result.R;
-import com.hbbxl.user.entity.SysUser;
-import com.hbbxl.user.dao.SysUserRoleMapper;
 import com.hbbxl.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,8 +21,6 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
-    private final SysUserRoleMapper userRoleMapper;
-    private final com.hbbxl.user.dao.SysUserMapper userMapper;
 
     @Operation(summary = "用户分页列表(管理员)")
     @GetMapping("/list")
@@ -76,26 +72,6 @@ public class UserController {
     public R<Map<String, Object>> detail(@RequestParam Long userId,
                                          @RequestHeader("X-User-Id") Long currentUserId,
                                          @RequestHeader(value = "X-User-Role", required = false) String role) {
-        if (!userId.equals(currentUserId) && !CommonConstants.ROLE_ADMIN.equals(role)) {
-            return R.fail(CommonConstants.FORBIDDEN, "无权查看该用户信息");
-        }
-        SysUser user = userMapper.selectById(userId);
-        if (user == null) {
-            return R.fail("用户不存在");
-        }
-        Map<String, Object> data = new HashMap<>();
-        data.put("id", user.getId());
-        data.put("username", user.getUsername());
-        data.put("realName", user.getRealName());
-        data.put("nickname", user.getNickname());
-        data.put("phone", user.getPhone());
-        data.put("email", user.getEmail());
-        data.put("avatar", user.getAvatar());
-        data.put("signature", user.getSignature());
-        data.put("gender", user.getGender());
-        data.put("status", user.getStatus());
-        data.put("expireTime", user.getExpireTime());
-        data.put("role", userRoleMapper.selectRoleCodeByUserId(userId));
-        return R.ok(data);
+        return R.ok(userService.detail(userId, currentUserId, role));
     }
 }

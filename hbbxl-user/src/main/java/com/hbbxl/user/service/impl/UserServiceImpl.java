@@ -106,6 +106,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Map<String, Object> detail(Long userId, Long currentUserId, String role) {
+        if (!userId.equals(currentUserId) && !CommonConstants.ROLE_ADMIN.equals(role)) {
+            throw new BizException(403, "无权查看该用户信息");
+        }
+        SysUser user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BizException("用户不存在");
+        }
+        Map<String, Object> data = new java.util.HashMap<>();
+        data.put("id", user.getId());
+        data.put("username", user.getUsername());
+        data.put("realName", user.getRealName());
+        data.put("nickname", user.getNickname());
+        data.put("phone", user.getPhone());
+        data.put("email", user.getEmail());
+        data.put("avatar", user.getAvatar());
+        data.put("signature", user.getSignature());
+        data.put("gender", user.getGender());
+        data.put("status", user.getStatus());
+        data.put("expireTime", user.getExpireTime());
+        data.put("role", userRoleMapper.selectRoleCodeByUserId(userId));
+        return data;
+    }
+
+    @Override
     public void resetPassword(Long id, String password) {
         SysUser user = userMapper.selectById(id);
         if (user == null) {
