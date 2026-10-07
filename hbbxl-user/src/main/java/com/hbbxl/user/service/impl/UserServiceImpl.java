@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 /** 用户服务: 账号只由管理员开通, 角色固定为user */
@@ -61,6 +62,7 @@ public class UserServiceImpl implements UserService {
         user.setPhone(username.trim());
         user.setPassword(passwordEncoder.encode(password == null || password.isBlank() ? DEFAULT_PASSWORD : password));
         user.setStatus(1);
+        user.setExpireTime(LocalDateTime.now().plusYears(1)); // 开通有效期1年
         user.setAvatar(CommonConstants.DEFAULT_AVATAR);
         userMapper.insert(user);
         userRoleMapper.insertUserRole(user.getId(), role.getId());
@@ -80,6 +82,19 @@ public class UserServiceImpl implements UserService {
             throw new BizException("不能停用管理员账号");
         }
         user.setStatus(status);
+        userMapper.updateById(user);
+    }
+
+    @Override
+    public void renew(Long id, int years) {
+        SysUser user = userMapper.selectById(id);
+        if (user == null) {
+            throw new BizException("用户不存在");
+        }
+        // 未到期顺延, 已过期从现在起算
+        LocalDateTime base = user.getExpireTime() != null && user.getExpireTime().isAfter(LocalDateTime.now())
+                ? user.getExpireTime() : LocalDateTime.now();
+        user.setExpireTime(base.plusYears(years));
         userMapper.updateById(user);
     }
 

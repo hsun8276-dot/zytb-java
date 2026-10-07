@@ -8,6 +8,7 @@
                u.real_name   AS realName,
                u.phone       AS phone,
                u.status      AS status,
+               u.expire_time AS expireTime,
                r.code        AS roleCode,
                r.name        AS roleName,
                u.create_time AS createTime

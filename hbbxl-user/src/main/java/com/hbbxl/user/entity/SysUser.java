@@ -33,6 +33,9 @@ public class SysUser {
 
     private Integer status;
 
+    /** 账号有效期(NULL=永久, 管理员账号不过期) */
+    private LocalDateTime expireTime;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 

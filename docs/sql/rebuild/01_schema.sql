@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS sys_user (
     signature    VARCHAR(255) DEFAULT '' COMMENT '个人签名',
     gender       TINYINT      DEFAULT 0 COMMENT '0未知 1男 2女',
     status       TINYINT      DEFAULT 1 COMMENT '0停用 1正常',
+    expire_time  DATETIME     NULL COMMENT '账号有效期(NULL=永久, 管理员账号不过期)',
     create_time  DATETIME DEFAULT CURRENT_TIMESTAMP,
     update_time  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted      TINYINT  DEFAULT 0,

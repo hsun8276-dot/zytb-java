@@ -63,6 +63,14 @@ public class UserController {
         return R.ok();
     }
 
+    @Operation(summary = "重新开通/续期(管理员): 默认1年, 未到期顺延")
+    @PutMapping("/{id}/renew")
+    @RequireRole(CommonConstants.ROLE_ADMIN)
+    public R<Void> renew(@PathVariable Long id, @RequestParam(defaultValue = "1") int years) {
+        userService.renew(id, years);
+        return R.ok();
+    }
+
     @Operation(summary = "用户详情(本人或管理员)")
     @GetMapping("/detail")
     public R<Map<String, Object>> detail(@RequestParam Long userId,
@@ -86,6 +94,7 @@ public class UserController {
         data.put("signature", user.getSignature());
         data.put("gender", user.getGender());
         data.put("status", user.getStatus());
+        data.put("expireTime", user.getExpireTime());
         data.put("role", userRoleMapper.selectRoleCodeByUserId(userId));
         return R.ok(data);
     }

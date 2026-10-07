@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 /** 认证服务: 账号只由管理员开通, 无自助注册 */
@@ -38,6 +39,10 @@ public class AuthServiceImpl implements AuthService {
         }
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BizException(400, "用户名或密码错误");
+        }
+        // 账号有效期校验(类会员制: 过期需管理员重新开通)
+        if (user.getExpireTime() != null && user.getExpireTime().isBefore(LocalDateTime.now())) {
+            throw new BizException(400, "账号已过期, 请联系管理员重新开通");
         }
         String roleCode = userRoleMapper.selectRoleCodeByUserId(user.getId());
         if (roleCode == null) {

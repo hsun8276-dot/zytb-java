@@ -17,4 +17,7 @@ public interface UserService {
 
     /** 重置密码(管理员): 不传密码则重置为123456 */
     void resetPassword(Long id, String password);
+
+    /** 重新开通/续期(管理员): 未到期则顺延一年, 已过期从当前时间起算 */
+    void renew(Long id, int years);
 }
