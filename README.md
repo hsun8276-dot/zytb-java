@@ -1,6 +1,6 @@
-# 志愿填报系统(zytb)
+# 砚衡AI云数据升学规划系统(zytb)
 
-面向**全国高考生**的志愿填报平台,微服务架构(与魄力学习平台同构):Spring Boot 3.2.5 / Spring Cloud 2023.0.1 / JDK 17 / MyBatis-Plus / Nacos / Knife4j。
+**砚衡AI云数据升学规划系统**——面向全国高考生的志愿填报平台,微服务架构(与魄力学习平台同构):Spring Boot 3.2.5 / Spring Cloud 2023.0.1 / JDK 17 / MyBatis-Plus / Nacos / Knife4j。
 
 ## 服务列表(端口与魄力学习一致,同机不可同时运行两套)
 

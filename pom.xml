@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <name>Zytb Volunteer Platform</name>
-    <description>全国高考志愿填报系统</description>
+    <description>砚衡AI云数据升学规划系统</description>
 
     <modules>
         <module>hbbxl-common/hbbxl-common-core</module>
