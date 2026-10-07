@@ -1,0 +1,79 @@
+server:
+  port: 8800
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: hbbxl-gateway
+  codec:
+    max-in-memory-size: 4096MB
+  data:
+    redis:
+      host: 81.70.105.12
+      port: 6379
+      password: Wyl123...
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 81.70.105.12:8848
+        username: nacos
+        password: Wyl123...
+      config:
+        server-addr: 81.70.105.12:8848
+        username: nacos
+        password: Wyl123...
+        file-extension: yaml
+    gateway:
+      routes:
+        # 认证服务
+        - id: hbbxl-auth
+          uri: lb://hbbxl-auth
+          predicates:
+            - Path=/api/auth/**,/api/crypto/**,/api/config/**
+          filters:
+            - StripPrefix=1
+        # 用户服务
+        - id: hbbxl-user
+          uri: lb://hbbxl-user
+          predicates:
+            - Path=/api/user/**,/api/student/**,/api/role/**
+          filters:
+            - StripPrefix=1
+        # 院校专业库服务
+        - id: hbbxl-college
+          uri: lb://hbbxl-college
+          predicates:
+            - Path=/api/college/**,/api/major/**
+          filters:
+            - StripPrefix=1
+        # 分数服务
+        - id: hbbxl-score
+          uri: lb://hbbxl-score
+          predicates:
+            - Path=/api/score/**
+          filters:
+            - StripPrefix=1
+        # 志愿填报服务
+        - id: hbbxl-aspiration
+          uri: lb://hbbxl-aspiration
+          predicates:
+            - Path=/api/aspiration/**
+          filters:
+            - StripPrefix=1
+        # 智能推荐服务
+        - id: hbbxl-recommend
+          uri: lb://hbbxl-recommend
+          predicates:
+            - Path=/api/recommend/**
+          filters:
+            - StripPrefix=1
+        # 接口加密信封入口(占位路由): ApiCryptoGlobalFilter 解密后按路径首段改写真实路由
+        - id: api-crypto-envelope
+          uri: http://placeholder
+          predicates:
+            - Path=/api/gw
+
+# 接口地址加密密钥(AES-256, 与前端 utils/crypto.ts 保持一致)
+api-crypto:
+  key: "IH0zYCGnbvIp48FFuwa2siSBs5eDW6wyB58ZH/qNUXs="

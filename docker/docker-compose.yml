@@ -1,0 +1,113 @@
+services:
+  hbbxl-gateway:
+    image: ${REGISTRY_PREFIX}hbbxl/gateway:latest
+    container_name: hbbxl-gateway
+    network_mode: host
+    restart: unless-stopped
+    pull_policy: never
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - TZ=Asia/Shanghai
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8800/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+  hbbxl-auth:
+    image: ${REGISTRY_PREFIX}hbbxl/auth:latest
+    container_name: hbbxl-auth
+    network_mode: host
+    restart: unless-stopped
+    pull_policy: never
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - TZ=Asia/Shanghai
+    mem_limit: 352m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8801/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+  hbbxl-user:
+    image: ${REGISTRY_PREFIX}hbbxl/user:latest
+    container_name: hbbxl-user
+    network_mode: host
+    restart: unless-stopped
+    pull_policy: never
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - TZ=Asia/Shanghai
+    mem_limit: 352m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8802/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+  hbbxl-college:
+    image: ${REGISTRY_PREFIX}hbbxl/college:latest
+    container_name: hbbxl-college
+    network_mode: host
+    restart: unless-stopped
+    pull_policy: never
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - TZ=Asia/Shanghai
+    mem_limit: 352m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8803/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+  hbbxl-score:
+    image: ${REGISTRY_PREFIX}hbbxl/score:latest
+    container_name: hbbxl-score
+    network_mode: host
+    restart: unless-stopped
+    pull_policy: never
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - TZ=Asia/Shanghai
+    mem_limit: 352m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8804/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+  hbbxl-aspiration:
+    image: ${REGISTRY_PREFIX}hbbxl/aspiration:latest
+    container_name: hbbxl-aspiration
+    network_mode: host
+    restart: unless-stopped
+    pull_policy: never
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - TZ=Asia/Shanghai
+    mem_limit: 352m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8805/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+  hbbxl-recommend:
+    image: ${REGISTRY_PREFIX}hbbxl/recommend:latest
+    container_name: hbbxl-recommend
+    network_mode: host
+    restart: unless-stopped
+    pull_policy: never
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - TZ=Asia/Shanghai
+    mem_limit: 352m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8806/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 90s

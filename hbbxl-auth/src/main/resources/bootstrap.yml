@@ -1,0 +1,52 @@
+server:
+  port: 8801
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: hbbxl-auth
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 81.70.105.12:8848
+        username: nacos
+        password: Wyl123...
+      config:
+        server-addr: 81.70.105.12:8848
+        username: nacos
+        password: Wyl123...
+        file-extension: yaml
+        import-check:
+          enabled: false
+
+  datasource:
+    url: jdbc:mysql://81.70.105.12:3306/hbbxl?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: Wyl123...
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 1
+      max-lifetime: 120000
+      keepalive-time: 30000
+      validation-timeout: 5000
+
+  data:
+    redis:
+      host: 81.70.105.12
+      port: 6379
+      password: Wyl123...
+      database: 0
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

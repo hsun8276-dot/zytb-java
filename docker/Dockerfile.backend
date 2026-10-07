@@ -1,0 +1,23 @@
+# 后端服务通用镜像: 由构建脚本/Jenkins传入已构建好的jar
+# 构建示例:
+#   docker build -f docker/Dockerfile.backend \
+#     --build-arg JAR_FILE=hbbxl-auth/target/hbbxl-auth-1.0.0-SNAPSHOT.jar \
+#     -t hbbxl/auth:latest .
+FROM eclipse-temurin:17-jre
+
+ARG JAR_FILE
+ARG PORT=8800
+# 运行环境: 构建命令可用 --build-arg SPRING_PROFILES_ACTIVE=xxx 覆盖(默认prod)
+ARG SPRING_PROFILES_ACTIVE=prod
+
+ENV TZ=Asia/Shanghai \
+    SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE} \
+    JAVA_OPTS="-Xms128m -Xmx256m -XX:+UseSerialGC -XX:MaxMetaspaceSize=256m -XX:MetaspaceSize=128m -Duser.timezone=Asia/Shanghai"
+
+WORKDIR /app
+
+COPY ${JAR_FILE} app.jar
+
+EXPOSE ${PORT}
+
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]

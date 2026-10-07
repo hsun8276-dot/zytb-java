@@ -1,0 +1,6 @@
+# 本地开发/测试环境(start-all.ps1 激活)
+spring:
+  cloud:
+    nacos:
+      discovery:
+        namespace: hbbxl-test

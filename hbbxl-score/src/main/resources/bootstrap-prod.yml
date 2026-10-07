@@ -1,0 +1,6 @@
+# 生产环境(服务器Docker)
+spring:
+  cloud:
+    nacos:
+      discovery:
+        namespace: hbbxl

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Maven 构建镜像内使用: 腾讯云内网镜像源(服务器上下载依赖免外网带宽) -->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">
+  <mirrors>
+    <mirror>
+      <id>tencent</id>
+      <mirrorOf>central</mirrorOf>
+      <url>https://mirrors.cloud.tencent.com/nexus/repository/maven-public/</url>
+    </mirror>
+  </mirrors>
+</settings>

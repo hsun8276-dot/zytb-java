@@ -1,0 +1,6 @@
+# 生产环境(由Docker镜像 SPRING_PROFILES_ACTIVE=prod 激活)
+spring:
+  cloud:
+    nacos:
+      discovery:
+        namespace: hbbxl
