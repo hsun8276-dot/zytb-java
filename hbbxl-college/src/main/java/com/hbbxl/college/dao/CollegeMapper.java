@@ -3,6 +3,7 @@ package com.hbbxl.college.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.hbbxl.college.entity.College;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -25,4 +26,14 @@ public interface CollegeMapper extends BaseMapper<College> {
 
     @Select("SELECT COUNT(*) FROM college_major")
     long countMajors();
+
+    @Select("SELECT DISTINCT province FROM college " +
+            "WHERE province IS NOT NULL AND province != '' " +
+            "ORDER BY province")
+    List<String> listProvinces();
+
+    @Select("SELECT DISTINCT city FROM college " +
+            "WHERE province = #{province} AND city IS NOT NULL AND city != '' " +
+            "ORDER BY city")
+    List<String> listCities(@Param("province") String province);
 }
