@@ -12,7 +12,7 @@ spring:
         username: nacos
         password: Wyl123...
   datasource:
-    url: jdbc:mysql://81.70.105.12:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://81.70.105.12:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
     username: root
     password: Wyl123...
     driver-class-name: com.mysql.cj.jdbc.Driver

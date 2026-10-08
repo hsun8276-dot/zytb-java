@@ -61,3 +61,6 @@ ex*.json
 wbl.json
 cat.json
 av*.json
+
+# 考试院原始数据缓存(xlsx/pdf/图片, 体积大, 可由 crawler 重新下载)
+data_raw/

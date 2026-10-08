@@ -7,7 +7,6 @@ import com.hbbxl.aspiration.dao.AspirationMapper;
 import com.hbbxl.aspiration.dao.SysUserDao;
 import com.hbbxl.aspiration.entity.Aspiration;
 import com.hbbxl.aspiration.service.AspirationService;
-import com.hbbxl.common.core.constant.CommonConstants;
 import com.hbbxl.common.core.exception.BizException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,9 +41,6 @@ public class AspirationServiceImpl implements AspirationService {
                         .like(Aspiration::getStudentName, keyword.trim())
                         .or().like(Aspiration::getAspirationName, keyword.trim())
                         .or().like(Aspiration::getContactPhone, keyword.trim()));
-        if (!CommonConstants.ROLE_ADMIN.equals(role)) {
-            qw.eq(Aspiration::getUserId, currentUserId);
-        }
         qw.orderByDesc(Aspiration::getCreateTime);
         IPage<Aspiration> src = aspirationMapper.selectPage(new Page<>(page, size), qw);
         Page<Map<String, Object>> out = new Page<>(src.getCurrent(), src.getSize(), src.getTotal());
@@ -203,7 +199,11 @@ public class AspirationServiceImpl implements AspirationService {
 
     /* ---------------- 私有方法 ---------------- */
 
-    /** 按方案码加载未删除方案; 非管理员只能操作自己创建的 */
+    /**
+     * 按方案码加载未删除方案。
+     * 系统账号均为管理员开通的填报师账号，学生方案属于共享业务数据，
+     * 不按创建账号隔离；user_id 仅用于记录创建人。
+     */
     private Aspiration loadOwned(String aspirationCode, Long currentUserId, String role) {
         if (aspirationCode == null || aspirationCode.isBlank()) {
             throw new BizException("方案码不能为空");
@@ -213,9 +213,6 @@ public class AspirationServiceImpl implements AspirationService {
                 .eq(Aspiration::getDeleted, 0));
         if (a == null) {
             throw new BizException("志愿方案不存在或已删除");
-        }
-        if (!CommonConstants.ROLE_ADMIN.equals(role) && !currentUserId.equals(a.getUserId())) {
-            throw new BizException("无权操作该志愿方案");
         }
         return a;
     }
