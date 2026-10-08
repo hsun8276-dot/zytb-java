@@ -74,4 +74,35 @@ public class UserController {
                                          @RequestHeader(value = "X-User-Role", required = false) String role) {
         return R.ok(userService.detail(userId, currentUserId, role));
     }
+
+    @Operation(summary = "当前登录用户详情")
+    @GetMapping("/me")
+    public R<Map<String, Object>> me(@RequestHeader("X-User-Id") Long currentUserId,
+                                     @RequestHeader(value = "X-User-Role", required = false) String role) {
+        return R.ok(userService.detail(currentUserId, currentUserId, role));
+    }
+
+    @Operation(summary = "更新本人基本资料")
+    @PutMapping("/profile")
+    public R<Void> updateProfile(@RequestBody Map<String, Object> body,
+                                 @RequestHeader("X-User-Id") Long currentUserId) {
+        userService.updateProfile(currentUserId, body);
+        return R.ok();
+    }
+
+    @Operation(summary = "本人修改密码")
+    @PutMapping("/password")
+    public R<Void> changePassword(@RequestBody Map<String, String> body,
+                                  @RequestHeader("X-User-Id") Long currentUserId) {
+        if (body == null) {
+            return R.fail("参数不能为空");
+        }
+        String newPassword = body.get("newPassword");
+        String confirmPassword = body.get("confirmPassword");
+        if (confirmPassword != null && !confirmPassword.equals(newPassword)) {
+            return R.fail("两次输入的新密码不一致");
+        }
+        userService.changePassword(currentUserId, body.get("oldPassword"), newPassword);
+        return R.ok();
+    }
 }

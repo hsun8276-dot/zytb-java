@@ -26,4 +26,10 @@ public interface UserService {
 
     /** 用户详情(本人或管理员可查) */
     Map<String, Object> detail(Long userId, Long currentUserId, String role);
+
+    /** 更新本人基本资料(姓名/昵称/手机/邮箱/性别/签名/头像) */
+    void updateProfile(Long currentUserId, Map<String, Object> body);
+
+    /** 本人修改密码(需校验原密码) */
+    void changePassword(Long currentUserId, String oldPassword, String newPassword);
 }

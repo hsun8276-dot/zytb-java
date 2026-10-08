@@ -59,6 +59,8 @@ public class CollegeQueryServiceImpl implements CollegeQueryService {
     @Override
     public List<Map<String, Object>> searchColleges(String province, String city, String name) {
         LambdaQueryWrapper<College> qw = new LambdaQueryWrapper<>();
+        // 列表只需编码/名称, 切勿 select * —— college 含大量 TEXT 字段, 全量会拖垮远程库与 30s 前端超时
+        qw.select(College::getCode, College::getName);
         String p = trimToNull(province);
         String c = trimToNull(city);
         String n = trimToNull(name);
@@ -73,6 +75,10 @@ public class CollegeQueryServiceImpl implements CollegeQueryService {
             qw.like(College::getName, n);
         }
         qw.orderByAsc(College::getCode);
+        // 无筛选时限制条数, 避免一次拉 3000+ 行
+        if (p == null && c == null && n == null) {
+            qw.last("LIMIT 200");
+        }
         List<College> list = collegeMapper.selectList(qw);
         List<Map<String, Object>> result = new ArrayList<>(list.size());
         for (College col : list) {

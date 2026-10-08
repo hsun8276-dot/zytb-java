@@ -157,6 +157,7 @@ public class FillServiceImpl implements FillService {
         checkSlider(lowerParam);
         ensureFilterDefaults(code);
 
+        // 滑杆过滤键=预测最低分 PreMinMark(对齐源站, 非等效分); 下限不低于省控线
         Map<String, Object> line = fillDao.controlLine(a.getProvince(), a.getYear(), subjectType(a), a.getBatch());
         int lineScore = line == null ? 0 : toInt(line.get("score"));
         int low = Math.max(a.getScore() - lowerParam, lineScore);
@@ -172,6 +173,7 @@ public class FillServiceImpl implements FillService {
         where.append(majorFilterCondition(code, p));
 
         fillDao.deleteRecommend(code);
+        // 排序: 预测最低分从高到低(冲→稳→保), 与源站推荐列表一致; 一键填报按此序取前 N
         int count = fillDao.insertRecommend(code, where.toString(),
                 "m.pre_min_mark DESC, m.unv_code, m.recruit_major_code", p);
 
@@ -374,6 +376,7 @@ public class FillServiceImpl implements FillService {
         if (fillDao.countRecommend(code) == 0) {
             throw new BizException("暂无推荐专业, 请先进行智能筛选");
         }
+        // 按推荐物化顺序(PreMinMark DESC)取未选前 N, 与源站推荐列表序一致
         List<String> picks = count == 0 ? List.of() : fillDao.recommendNotSelected(code, count);
         fillDao.insertSelected(code, picks, fillDao.maxSelectedSort(code) + 1);
         Map<String, Object> out = new LinkedHashMap<>();
@@ -1037,8 +1040,18 @@ public class FillServiceImpl implements FillService {
         r.put("TuitionText", tuitionText(m));
         r.put("MajorDirection", "");
         r.put("RecruitPlanExplain", nvl((String) m.get("plan_explain")));
-        r.put("MajorGrade", blankToNull(m.get("major_grade")));
-        r.put("MajorRank", m.get("major_rank"));
+// 源站口径: MajorGrade/MajorRank 成对下发，缺一则都为 null，模板才稳定显示「无」或「B+，123」
+        String majorGrade = blankToNull(m.get("major_grade"));
+        Integer majorRank = toIntOrNull(m.get("major_rank"));
+        if (majorRank != null && majorRank == 0) {
+            majorRank = null;
+        }
+        if (majorGrade == null || majorRank == null) {
+            majorGrade = null;
+            majorRank = null;
+        }
+        r.put("MajorGrade", majorGrade);
+        r.put("MajorRank", majorRank);
         List<String> req = splitComma((String) m.get("required_subjects"));
         r.put("RequiredSubjects", req);
         r.put("ElectiveSubjects", List.of());

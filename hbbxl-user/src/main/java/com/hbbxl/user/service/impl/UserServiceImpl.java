@@ -139,4 +139,120 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(password == null || password.isBlank() ? DEFAULT_PASSWORD : password));
         userMapper.updateById(user);
     }
+
+    @Override
+    public void updateProfile(Long currentUserId, Map<String, Object> body) {
+        if (currentUserId == null) {
+            throw new BizException("未登录");
+        }
+        SysUser user = userMapper.selectById(currentUserId);
+        if (user == null) {
+            throw new BizException("用户不存在");
+        }
+        if (body == null) {
+            throw new BizException("参数不能为空");
+        }
+        if (body.containsKey("realName")) {
+            String realName = str(body.get("realName"));
+            if (realName == null || realName.isBlank()) {
+                throw new BizException("姓名不能为空");
+            }
+            if (realName.length() > 50) {
+                throw new BizException("姓名过长");
+            }
+            user.setRealName(realName.trim());
+        }
+        if (body.containsKey("nickname")) {
+            String nickname = str(body.get("nickname"));
+            if (nickname != null && nickname.length() > 50) {
+                throw new BizException("昵称过长");
+            }
+            user.setNickname(nickname == null ? "" : nickname.trim());
+        }
+        if (body.containsKey("phone")) {
+            String phone = str(body.get("phone"));
+            if (phone != null && !phone.isBlank() && !phone.matches("^1\\d{10}$")) {
+                throw new BizException("手机号格式不正确");
+            }
+            user.setPhone(phone == null ? "" : phone.trim());
+        }
+        if (body.containsKey("email")) {
+            String email = str(body.get("email"));
+            if (email != null && !email.isBlank() && !email.matches("^[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}$")) {
+                throw new BizException("邮箱格式不正确");
+            }
+            if (email != null && email.length() > 100) {
+                throw new BizException("邮箱过长");
+            }
+            user.setEmail(email == null ? "" : email.trim());
+        }
+        if (body.containsKey("gender")) {
+            Integer gender = toInt(body.get("gender"));
+            if (gender == null || (gender != 0 && gender != 1 && gender != 2)) {
+                throw new BizException("性别不合法");
+            }
+            user.setGender(gender);
+        }
+        if (body.containsKey("signature")) {
+            String signature = str(body.get("signature"));
+            if (signature != null && signature.length() > 255) {
+                throw new BizException("签名过长");
+            }
+            user.setSignature(signature == null ? "" : signature.trim());
+        }
+        if (body.containsKey("avatar")) {
+            String avatar = str(body.get("avatar"));
+            if (avatar != null && avatar.length() > 255) {
+                throw new BizException("头像地址过长");
+            }
+            user.setAvatar(avatar == null || avatar.isBlank() ? CommonConstants.DEFAULT_AVATAR : avatar.trim());
+        }
+        userMapper.updateById(user);
+    }
+
+    @Override
+    public void changePassword(Long currentUserId, String oldPassword, String newPassword) {
+        if (currentUserId == null) {
+            throw new BizException("未登录");
+        }
+        if (oldPassword == null || oldPassword.isBlank()) {
+            throw new BizException("请输入原密码");
+        }
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new BizException("请输入新密码");
+        }
+        if (newPassword.length() < 6 || newPassword.length() > 32) {
+            throw new BizException("新密码长度需为6-32位");
+        }
+        if (oldPassword.equals(newPassword)) {
+            throw new BizException("新密码不能与原密码相同");
+        }
+        SysUser user = userMapper.selectById(currentUserId);
+        if (user == null) {
+            throw new BizException("用户不存在");
+        }
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BizException("原密码不正确");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userMapper.updateById(user);
+    }
+
+    private static String str(Object v) {
+        return v == null ? null : String.valueOf(v);
+    }
+
+    private static Integer toInt(Object v) {
+        if (v == null) {
+            return null;
+        }
+        if (v instanceof Number n) {
+            return n.intValue();
+        }
+        try {
+            return Integer.parseInt(String.valueOf(v).trim());
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
