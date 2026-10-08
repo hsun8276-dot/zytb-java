@@ -54,6 +54,53 @@ public class FillDao {
         return rows.isEmpty() ? null : rows.get(0);
     }
 
+    /** 综合查询-省控线: 有数据的省份 */
+    public List<String> controlLineProvinces() {
+        return jdbc.queryForList("SELECT DISTINCT province FROM control_line ORDER BY province",
+                new MapSqlParameterSource(), String.class);
+    }
+
+    /** 综合查询-省控线: 某省有数据的年份(降序) */
+    public List<Integer> controlLineYears(String province) {
+        return jdbc.queryForList("SELECT DISTINCT year FROM control_line WHERE province=:p ORDER BY year DESC",
+                new MapSqlParameterSource("p", province), Integer.class);
+    }
+
+    /** 综合查询-省控线列表(仅本科批/专科批, 对齐参考站展示) */
+    public int countControlLines(String province, Integer year) {
+        MapSqlParameterSource p = controlLineListParams(province, year);
+        Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM control_line WHERE " + controlLineListWhere(year), p,
+                Integer.class);
+        return n == null ? 0 : n;
+    }
+
+    public List<Map<String, Object>> pageControlLines(String province, Integer year, int offset, int limit) {
+        MapSqlParameterSource p = controlLineListParams(province, year);
+        p.addValue("o", offset).addValue("l", limit);
+        return jdbc.queryForList("SELECT province, year, batch, subject_type, score FROM control_line WHERE "
+                + controlLineListWhere(year)
+                + " ORDER BY year DESC,"
+                + " CASE batch WHEN '本科批' THEN 1 WHEN '专科批' THEN 2 ELSE 3 END,"
+                + " CASE subject_type WHEN '物理类' THEN 1 WHEN '历史类' THEN 2 ELSE 3 END"
+                + " LIMIT :o, :l", p);
+    }
+
+    private static String controlLineListWhere(Integer year) {
+        String w = "province=:p AND batch IN ('本科批','专科批')";
+        if (year != null && year > 0) {
+            w += " AND year=:y";
+        }
+        return w;
+    }
+
+    private static MapSqlParameterSource controlLineListParams(String province, Integer year) {
+        MapSqlParameterSource p = new MapSqlParameterSource("p", province);
+        if (year != null && year > 0) {
+            p.addValue("y", year);
+        }
+        return p;
+    }
+
     /* ---------------- 招生专业 ---------------- */
 
     public List<Map<String, Object>> queryMajors(String whereAndOrder, SqlParameterSource p) {
@@ -69,6 +116,72 @@ public class FillDao {
     public List<Map<String, Object>> majorsByUab(String uabId) {
         return jdbc.queryForList("SELECT " + MAJOR_COLUMNS + " FROM recruit_major m WHERE m.uab_id=:u"
                 + " ORDER BY m.recruit_major_code", new MapSqlParameterSource("u", uabId));
+    }
+
+    /** 综合查询-招生信息: 院校分页(按 uab 聚合计划人数) */
+    public int countUnivs(String province, int year, String batch, String subjectType,
+                          String unvProvince, String unvCity, String unvName, String majorName) {
+        MapSqlParameterSource p = univFilterParams(province, year, batch, subjectType,
+                unvProvince, unvCity, unvName, majorName);
+        Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM ("
+                + " SELECT m.uab_id FROM recruit_major m WHERE " + univFilterWhere(unvProvince, unvCity, unvName, majorName)
+                + " GROUP BY m.uab_id) t", p, Integer.class);
+        return n == null ? 0 : n;
+    }
+
+    public List<Map<String, Object>> pageUnivs(String province, int year, String batch, String subjectType,
+                                               String unvProvince, String unvCity, String unvName, String majorName,
+                                               int offset, int limit) {
+        MapSqlParameterSource p = univFilterParams(province, year, batch, subjectType,
+                unvProvince, unvCity, unvName, majorName);
+        p.addValue("o", offset).addValue("l", limit);
+        return jdbc.queryForList("SELECT m.uab_id, m.unv_code, m.unv_name, m.unv_province, m.unv_city,"
+                + " m.batch, m.subject_type, m.province AS exam_province, m.year,"
+                + " COALESCE(SUM(m.major_plan),0) AS plan_total"
+                + " FROM recruit_major m WHERE " + univFilterWhere(unvProvince, unvCity, unvName, majorName)
+                + " GROUP BY m.uab_id, m.unv_code, m.unv_name, m.unv_province, m.unv_city,"
+                + " m.batch, m.subject_type, m.province, m.year"
+                + " ORDER BY m.unv_code LIMIT :o, :l", p);
+    }
+
+    private static String univFilterWhere(String unvProvince, String unvCity, String unvName, String majorName) {
+        StringBuilder w = new StringBuilder(
+                "m.province=:p AND m.year=:y AND m.batch=:b AND m.subject_type=:s");
+        if (unvProvince != null && !unvProvince.isBlank()) {
+            w.append(" AND m.unv_province LIKE :up");
+        }
+        if (unvCity != null && !unvCity.isBlank()) {
+            w.append(" AND m.unv_city LIKE :uc");
+        }
+        if (unvName != null && !unvName.isBlank()) {
+            w.append(" AND m.unv_name LIKE :un");
+        }
+        if (majorName != null && !majorName.isBlank()) {
+            w.append(" AND EXISTS (SELECT 1 FROM recruit_major x WHERE x.uab_id=m.uab_id"
+                    + " AND x.province=:p AND x.year=:y AND x.batch=:b AND x.subject_type=:s"
+                    + " AND x.major_name LIKE :mn)");
+        }
+        return w.toString();
+    }
+
+    private static MapSqlParameterSource univFilterParams(String province, int year, String batch, String subjectType,
+                                                          String unvProvince, String unvCity, String unvName,
+                                                          String majorName) {
+        MapSqlParameterSource p = new MapSqlParameterSource()
+                .addValue("p", province).addValue("y", year).addValue("b", batch).addValue("s", subjectType);
+        if (unvProvince != null && !unvProvince.isBlank()) {
+            p.addValue("up", "%" + unvProvince.trim() + "%");
+        }
+        if (unvCity != null && !unvCity.isBlank()) {
+            p.addValue("uc", "%" + unvCity.trim() + "%");
+        }
+        if (unvName != null && !unvName.isBlank()) {
+            p.addValue("un", "%" + unvName.trim() + "%");
+        }
+        if (majorName != null && !majorName.isBlank()) {
+            p.addValue("mn", "%" + majorName.trim() + "%");
+        }
+        return p;
     }
 
     public List<Map<String, Object>> historiesByRids(Collection<String> rids) {

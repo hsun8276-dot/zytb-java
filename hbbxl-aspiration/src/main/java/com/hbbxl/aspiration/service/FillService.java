@@ -62,7 +62,13 @@ public interface FillService {
 
     Map<String, Object> unvDetail(String code, String uabId, Long uid, String role);
 
+    /** 院校明细(不绑志愿方案, 供综合查询复用) */
+    Map<String, Object> unvDetailByUab(String uabId);
+
     Map<String, Object> majorDetail(String code, String rid, Long uid, String role);
+
+    /** 专业明细(不绑志愿方案, 供综合查询复用) */
+    Map<String, Object> majorDetailByRid(String rid);
 
     List<Map<String, Object>> majorMapping(String code, String rid, Long uid, String role);
 

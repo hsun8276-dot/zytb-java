@@ -541,6 +541,11 @@ public class FillServiceImpl implements FillService {
     @Override
     public Map<String, Object> unvDetail(String code, String uabId, Long uid, String role) {
         loadOwned(code, uid, role);
+        return unvDetailByUab(uabId);
+    }
+
+    @Override
+    public Map<String, Object> unvDetailByUab(String uabId) {
         List<Map<String, Object>> majors = fillDao.majorsByUab(uabId);
         if (majors.isEmpty()) {
             throw new BizException("院校不存在: " + uabId);
@@ -604,9 +609,64 @@ public class FillServiceImpl implements FillService {
         if (rows.isEmpty()) {
             throw new BizException("招生专业不存在: " + rid);
         }
-        Map<String, Object> m = fillDao.majorsByRids(one).get(0);
+        Map<String, Object> out = majorHistoryBundle(rid);
+        out.put("info", rows.get(0));
+        return out;
+    }
+
+    @Override
+    public Map<String, Object> majorDetailByRid(String rid) {
+        if (rid == null || rid.isBlank()) {
+            throw new BizException("招生专业不存在");
+        }
+        List<Map<String, Object>> majors = fillDao.majorsByRids(List.of(rid));
+        if (majors.isEmpty()) {
+            throw new BizException("招生专业不存在: " + rid);
+        }
+        Map<String, Object> m = majors.get(0);
         String st = (String) m.get("subject_type");
-        List<Map<String, Object>> histories = fillDao.historiesByRids(one).stream()
+        String province = (String) m.get("province");
+        String batch = (String) m.get("batch");
+        int year = toInt(m.get("year"));
+        Integer preAvg = toIntOrNull(m.get("pre_avg_mark"));
+        Integer preMin = toIntOrNull(m.get("pre_min_mark"));
+        Integer avgRank = rankOf(province, year, st, preAvg);
+        Integer minRank = firstNonNull(toIntOrNull(m.get("pre_min_rank")), rankOf(province, year, st, preMin));
+
+        Map<String, Object> info = new LinkedHashMap<>();
+        info.put("Year", year);
+        info.put("Batch", batch);
+        info.put("ArtsOrScience", artsOrScience(st));
+        info.put("UnvCode", m.get("unv_code"));
+        info.put("UnvName", m.get("unv_name"));
+        info.put("RecruitMajorCode", m.get("recruit_major_code"));
+        info.put("MajorName", m.get("major_name"));
+        info.put("RecruitPlanExplain", m.get("plan_explain"));
+        info.put("PreAvgMark", preAvg);
+        info.put("PreMinMark", preMin);
+        info.put("MajorPlan", m.get("major_plan"));
+        info.put("PreAvgPercentile", percentileOf(province, year, st, batch, avgRank));
+        Double preMinPct = toDouble(m.get("pre_min_percentile"));
+        info.put("PreMinPercentile", preMinPct != null ? preMinPct
+                : percentileOf(province, year, st, batch, minRank));
+        info.put("SchoolLength", m.get("school_length"));
+        info.put("PreAvgMarkRank", avgRank);
+        info.put("PreMinMarkRank", minRank);
+        info.put("TuitionText", tuitionText(m));
+
+        Map<String, Object> out = majorHistoryBundle(rid);
+        out.put("info", info);
+        return out;
+    }
+
+    private Map<String, Object> majorHistoryBundle(String rid) {
+        List<Map<String, Object>> majors = fillDao.majorsByRids(List.of(rid == null ? "" : rid));
+        if (majors.isEmpty()) {
+            throw new BizException("招生专业不存在: " + rid);
+        }
+        Map<String, Object> m = majors.get(0);
+        String st = (String) m.get("subject_type");
+        List<Map<String, Object>> histories = fillDao.historiesByRids(List.of(rid)).stream()
                 .filter(h -> h.get("plan") != null || h.get("min_mark") != null || h.get("avg_mark") != null)
                 .map(h -> {
                     Map<String, Object> r = new LinkedHashMap<>();
@@ -629,7 +689,6 @@ public class FillServiceImpl implements FillService {
                     return r;
                 }).toList();
         Map<String, Object> out = new LinkedHashMap<>();
-        out.put("info", rows.get(0));
         out.put("histories", histories);
         return out;
     }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hbbxl.aspiration.dao.AspirationMapper;
+import com.hbbxl.aspiration.dao.FillDao;
 import com.hbbxl.aspiration.dao.SysUserDao;
 import com.hbbxl.aspiration.entity.Aspiration;
 import com.hbbxl.aspiration.service.AspirationService;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /** 志愿方案服务实现: 学生管理/交单的业务规则都在这里 */
@@ -29,23 +31,109 @@ public class AspirationServiceImpl implements AspirationService {
 
     private final AspirationMapper aspirationMapper;
     private final SysUserDao sysUserDao;
+    private final FillDao fillDao;
 
     @Override
     public IPage<Map<String, Object>> pageList(long page, long size, String keyword, Integer submitStatus,
-                                               Long currentUserId, String role) {
+                                               String province, Integer year, String batch, String groupName,
+                                               Long fillerUserId, Long currentUserId, String role) {
         LambdaQueryWrapper<Aspiration> qw = new LambdaQueryWrapper<Aspiration>()
                 .eq(Aspiration::getDeleted, 0)
                 .eq(submitStatus != null && (submitStatus == 0 || submitStatus == 1),
                         Aspiration::getSubmitStatus, submitStatus)
+                .eq(province != null && !province.isBlank(), Aspiration::getProvince, province)
+                .eq(year != null && year > 0, Aspiration::getYear, year)
+                .eq(batch != null && !batch.isBlank() && !"%".equals(batch), Aspiration::getBatch, batch)
+                .eq(groupName != null && !groupName.isBlank() && !"%".equals(groupName),
+                        Aspiration::getGroupName, groupName)
+                .eq(fillerUserId != null && fillerUserId > 0, Aspiration::getUserId, fillerUserId)
                 .and(keyword != null && !keyword.isBlank(), w -> w
                         .like(Aspiration::getStudentName, keyword.trim())
                         .or().like(Aspiration::getAspirationName, keyword.trim())
                         .or().like(Aspiration::getContactPhone, keyword.trim()));
         qw.orderByDesc(Aspiration::getCreateTime);
         IPage<Aspiration> src = aspirationMapper.selectPage(new Page<>(page, size), qw);
+        Set<Long> userIds = src.getRecords().stream()
+                .map(Aspiration::getUserId).filter(Objects::nonNull).collect(Collectors.toSet());
+        Map<Long, String> fillerNames = new HashMap<>();
+        for (Long uid : userIds) {
+            String name = sysUserDao.selectRealNameById(uid);
+            fillerNames.put(uid, name == null || name.isBlank() ? "填报师" + uid : name);
+        }
         Page<Map<String, Object>> out = new Page<>(src.getCurrent(), src.getSize(), src.getTotal());
-        out.setRecords(src.getRecords().stream().map(this::toRow).collect(Collectors.toList()));
+        out.setRecords(src.getRecords().stream().map(a -> {
+            Map<String, Object> row = toRow(a);
+            row.put("fillerUserId", a.getUserId());
+            row.put("fillerName", fillerNames.getOrDefault(a.getUserId(), ""));
+            return row;
+        }).collect(Collectors.toList()));
         return out;
+    }
+
+    @Override
+    public List<Map<String, Object>> fillers() {
+        return sysUserDao.listAspirationCreators();
+    }
+
+    @Override
+    public Map<String, Object> admissionReport(String aspirationCode, Long currentUserId, String role) {
+        Aspiration a = loadOwned(aspirationCode, currentUserId, role);
+        String subjectType = "历史".equals(a.getFirstSubject()) ? "历史类" : "物理类";
+        Map<String, Object> rk = fillDao.scoreRanking(a.getProvince(), a.getYear(), subjectType, a.getScore());
+        List<Map<String, Object>> selected = fillDao.selected(aspirationCode);
+        List<String> rids = selected.stream()
+                .map(s -> (String) s.get("recruit_major_id")).collect(Collectors.toList());
+        Map<String, Map<String, Object>> byRid = fillDao.majorsByRids(rids).stream()
+                .collect(Collectors.toMap(m -> (String) m.get("recruit_major_id"), Function.identity(), (x, y) -> x));
+
+        List<Map<String, Object>> majors = new ArrayList<>();
+        int serial = 1;
+        for (String rid : rids) {
+            Map<String, Object> m = byRid.get(rid);
+            if (m == null) continue;
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("serial", serial++);
+            row.put("unvCode", m.get("unv_code"));
+            row.put("unvName", m.get("unv_name"));
+            row.put("majorCode", m.get("recruit_major_code"));
+            row.put("majorName", m.get("major_name"));
+            Integer cut = toIntOrNull(m.get("pre_min_mark"));
+            row.put("cutOff", cut);
+            int cmp = 0;
+            if (cut != null && a.getScore() != null) {
+                cmp = Integer.compare(cut, a.getScore());
+            }
+            // 1红(提档分高于考分) 0黄(相等) -1绿(低于考分)
+            row.put("level", cmp);
+            majors.add(row);
+        }
+
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("aspirationCode", a.getAspirationCode());
+        out.put("studentName", a.getStudentName());
+        out.put("genderText", a.getGender() != null && a.getGender() == 2 ? "女"
+                : (a.getGender() != null && a.getGender() == 0 ? "未知" : "男"));
+        out.put("province", a.getProvince());
+        out.put("artsOrScience", "物理类".equals(subjectType) ? "理科" : "文科");
+        out.put("highSchool", a.getHighSchool() == null ? "" : a.getHighSchool());
+        out.put("className", "");
+        out.put("score", a.getScore());
+        out.put("rank", rk == null ? null : rk.get("cumulative"));
+        boolean sameScore = rk != null && Objects.equals(toIntOrNull(rk.get("score")), a.getScore());
+        out.put("sameCount", sameScore ? rk.get("same_count") : 0);
+        out.put("majors", majors);
+        return out;
+    }
+
+    private Integer toIntOrNull(Object o) {
+        if (o == null) return null;
+        if (o instanceof Number n) return n.intValue();
+        try {
+            String s = String.valueOf(o).trim();
+            return s.isEmpty() ? null : Integer.valueOf(s);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     @Override
