@@ -19,7 +19,7 @@ public class AspirationController {
 
     private final AspirationService aspirationService;
 
-    @Operation(summary = "方案分页列表(填报师看自己创建的, 管理员看全部)")
+    @Operation(summary = "方案分页列表(所有管理员开通的填报师账号共享)")
     @GetMapping("/list")
     public R<IPage<Map<String, Object>>> list(@RequestParam(defaultValue = "1") long page,
                                               @RequestParam(defaultValue = "10") long size,
