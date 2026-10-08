@@ -101,6 +101,72 @@ public class FillDao {
         return p;
     }
 
+    /* ---------------- 综合查询-一分一档 ---------------- */
+
+    public List<String> scoreRankingProvinces() {
+        return jdbc.queryForList("SELECT DISTINCT province FROM score_ranking ORDER BY province",
+                new MapSqlParameterSource(), String.class);
+    }
+
+    public List<Integer> scoreRankingYears(String province) {
+        return jdbc.queryForList("SELECT DISTINCT year FROM score_ranking WHERE province=:p ORDER BY year DESC",
+                new MapSqlParameterSource("p", province), Integer.class);
+    }
+
+    public List<String> scoreRankingSubjects(String province, int year) {
+        return jdbc.queryForList(
+                "SELECT DISTINCT subject_type FROM score_ranking WHERE province=:p AND year=:y ORDER BY subject_type",
+                new MapSqlParameterSource().addValue("p", province).addValue("y", year), String.class);
+    }
+
+    /**
+     * 一分一档分页。tableType: 全部/本科/专科。
+     * 本科=分数≥本科批省控线；专科=分数&lt;本科批省控线；全部不过滤。
+     */
+    public int countScoreRanking(String province, int year, String subjectType, String tableType, Integer ugLine) {
+        MapSqlParameterSource p = scoreRankingListParams(province, year, subjectType, tableType, ugLine);
+        Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM score_ranking WHERE " + scoreRankingListWhere(tableType, ugLine),
+                p, Integer.class);
+        return n == null ? 0 : n;
+    }
+
+    public List<Map<String, Object>> pageScoreRanking(String province, int year, String subjectType,
+                                                     String tableType, Integer ugLine, int offset, int limit) {
+        MapSqlParameterSource p = scoreRankingListParams(province, year, subjectType, tableType, ugLine);
+        p.addValue("o", offset).addValue("l", limit);
+        return jdbc.queryForList("SELECT province, year, subject_type, score, same_count, cumulative FROM score_ranking WHERE "
+                + scoreRankingListWhere(tableType, ugLine)
+                + " ORDER BY score DESC LIMIT :o, :l", p);
+    }
+
+    public List<Map<String, Object>> listScoreRankingAll(String province, int year, String subjectType,
+                                                         String tableType, Integer ugLine) {
+        MapSqlParameterSource p = scoreRankingListParams(province, year, subjectType, tableType, ugLine);
+        return jdbc.queryForList("SELECT province, year, subject_type, score, same_count, cumulative FROM score_ranking WHERE "
+                + scoreRankingListWhere(tableType, ugLine)
+                + " ORDER BY score DESC", p);
+    }
+
+    private static String scoreRankingListWhere(String tableType, Integer ugLine) {
+        String w = "province=:p AND year=:y AND subject_type=:s";
+        if ("本科".equals(tableType) && ugLine != null) {
+            w += " AND score>=:ug";
+        } else if ("专科".equals(tableType) && ugLine != null) {
+            w += " AND score<:ug";
+        }
+        return w;
+    }
+
+    private static MapSqlParameterSource scoreRankingListParams(String province, int year, String subjectType,
+                                                                String tableType, Integer ugLine) {
+        MapSqlParameterSource p = new MapSqlParameterSource()
+                .addValue("p", province).addValue("y", year).addValue("s", subjectType);
+        if (("本科".equals(tableType) || "专科".equals(tableType)) && ugLine != null) {
+            p.addValue("ug", ugLine);
+        }
+        return p;
+    }
+
     /* ---------------- 招生专业 ---------------- */
 
     public List<Map<String, Object>> queryMajors(String whereAndOrder, SqlParameterSource p) {
