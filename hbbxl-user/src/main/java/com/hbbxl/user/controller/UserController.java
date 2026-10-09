@@ -59,10 +59,11 @@ public class UserController {
         return R.ok();
     }
 
-    @Operation(summary = "重新开通/续期(管理员): 默认1年, 未到期顺延")
+    @Operation(summary = "重新开通/续期(管理员): years 不传则读系统配置 membership_years")
     @PutMapping("/{id}/renew")
     @RequireRole(CommonConstants.ROLE_ADMIN)
-    public R<Void> renew(@PathVariable Long id, @RequestParam(defaultValue = "1") int years) {
+    public R<Void> renew(@PathVariable Long id,
+                         @RequestParam(required = false) Integer years) {
         userService.renew(id, years);
         return R.ok();
     }

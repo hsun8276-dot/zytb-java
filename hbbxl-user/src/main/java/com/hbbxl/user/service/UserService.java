@@ -19,7 +19,8 @@ public interface UserService {
     void resetPassword(Long id, String password);
 
     /** 重新开通/续期(管理员): 未到期则顺延一年, 已过期从当前时间起算; 同时恢复启用 */
-    void renew(Long id, int years);
+    /** years 为空时读系统配置 membership_years */
+    void renew(Long id, Integer years);
 
     /** 到期自动停用(定时任务): expire_time已过且仍启用的账号置为停用 */
     int autoDisableExpired();

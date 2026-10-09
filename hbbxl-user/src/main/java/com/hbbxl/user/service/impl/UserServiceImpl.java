@@ -12,11 +12,13 @@ import com.hbbxl.user.entity.SysRole;
 import com.hbbxl.user.dao.SysRoleMapper;
 import com.hbbxl.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 /** 用户服务: 账号只由管理员开通, 角色固定为user */
@@ -31,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final SysUserRoleMapper userRoleMapper;
     private final SysRoleMapper roleMapper;
     private final PasswordEncoder passwordEncoder;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public IPage<Map<String, Object>> pageList(int page, int size, String keyword) {
@@ -60,9 +63,10 @@ public class UserServiceImpl implements UserService {
         user.setUsername(username.trim());
         user.setRealName(realName.trim());
         user.setPhone(username.trim());
-        user.setPassword(passwordEncoder.encode(password == null || password.isBlank() ? DEFAULT_PASSWORD : password));
+        String pwd = password == null || password.isBlank() ? defaultPassword() : password;
+        user.setPassword(passwordEncoder.encode(pwd));
         user.setStatus(1);
-        user.setExpireTime(LocalDateTime.now().plusYears(1)); // 开通有效期1年
+        user.setExpireTime(LocalDateTime.now().plusYears(membershipYears()));
         user.setAvatar(CommonConstants.DEFAULT_AVATAR);
         userMapper.insert(user);
         userRoleMapper.insertUserRole(user.getId(), role.getId());
@@ -86,15 +90,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void renew(Long id, int years) {
+    public void renew(Long id, Integer years) {
         SysUser user = userMapper.selectById(id);
         if (user == null) {
             throw new BizException("用户不存在");
         }
+        int y = (years == null || years < 1) ? membershipYears() : Math.min(years, 10);
         // 未到期顺延, 已过期从现在起算
         LocalDateTime base = user.getExpireTime() != null && user.getExpireTime().isAfter(LocalDateTime.now())
                 ? user.getExpireTime() : LocalDateTime.now();
-        user.setExpireTime(base.plusYears(years));
+        user.setExpireTime(base.plusYears(y));
         // 到期自动停用过的账号, 重新开通时恢复启用
         user.setStatus(1);
         userMapper.updateById(user);
@@ -136,7 +141,8 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             throw new BizException("用户不存在");
         }
-        user.setPassword(passwordEncoder.encode(password == null || password.isBlank() ? DEFAULT_PASSWORD : password));
+        String pwd = password == null || password.isBlank() ? defaultPassword() : password;
+        user.setPassword(passwordEncoder.encode(pwd));
         userMapper.updateById(user);
     }
 
@@ -236,6 +242,38 @@ public class UserServiceImpl implements UserService {
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         userMapper.updateById(user);
+    }
+
+    /** 开通/续费默认年数, 读 sys_config.membership_years */
+    private int membershipYears() {
+        try {
+            List<String> vals = jdbcTemplate.query(
+                    "SELECT config_value FROM sys_config WHERE config_key='membership_years' LIMIT 1",
+                    (rs, i) -> rs.getString(1));
+            if (!vals.isEmpty() && vals.get(0) != null && !vals.get(0).isBlank()) {
+                int y = Integer.parseInt(vals.get(0).trim());
+                if (y >= 1 && y <= 10) {
+                    return y;
+                }
+            }
+        } catch (Exception ignored) {
+            // 表未建或配置异常时回退 1 年
+        }
+        return 1;
+    }
+
+    private String defaultPassword() {
+        try {
+            List<String> vals = jdbcTemplate.query(
+                    "SELECT config_value FROM sys_config WHERE config_key='default_password' LIMIT 1",
+                    (rs, i) -> rs.getString(1));
+            if (!vals.isEmpty() && vals.get(0) != null && !vals.get(0).isBlank()) {
+                return vals.get(0).trim();
+            }
+        } catch (Exception ignored) {
+            // ignore
+        }
+        return DEFAULT_PASSWORD;
     }
 
     private static String str(Object v) {
