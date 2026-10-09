@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @Tag(name = "管理端-院校")
@@ -23,6 +24,13 @@ public class CollegeAdminController {
 
     private final CollegeAdminService collegeAdminService;
 
+    @Operation(summary = "院校检索下拉(层次/类型/性质)")
+    @GetMapping("/filters")
+    @RequireRole(CommonConstants.ROLE_ADMIN)
+    public R<Map<String, List<String>>> filters() {
+        return R.ok(collegeAdminService.filters());
+    }
+
     @Operation(summary = "院校分页列表")
     @GetMapping("/page")
     @RequireRole(CommonConstants.ROLE_ADMIN)
@@ -30,7 +38,10 @@ public class CollegeAdminController {
                                               @RequestParam(defaultValue = "20") int size,
                                               @RequestParam(required = false) String province,
                                               @RequestParam(required = false) String city,
-                                              @RequestParam(required = false) String keyword) {
-        return R.ok(collegeAdminService.page(page, size, province, city, keyword));
+                                              @RequestParam(required = false) String keyword,
+                                              @RequestParam(required = false) String level,
+                                              @RequestParam(required = false) String collegeType,
+                                              @RequestParam(required = false) String property) {
+        return R.ok(collegeAdminService.page(page, size, province, city, keyword, level, collegeType, property));
     }
 }
