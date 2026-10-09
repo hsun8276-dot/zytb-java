@@ -1,6 +1,13 @@
-# 生产环境(服务器Docker)
+# 生产环境 = Mac Docker Desktop（中间件经 host.docker.internal）
 spring:
   cloud:
     nacos:
       discovery:
+        server-addr: host.docker.internal:8848
+        username: nacos
+        password: nacos
         namespace: hbbxl
+  datasource:
+    url: jdbc:mysql://host.docker.internal:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root

@@ -1,8 +1,21 @@
-# 生产环境(由Docker镜像 SPRING_PROFILES_ACTIVE=prod 激活)
+# 生产环境 = Mac Docker Desktop（中间件也在本机 Docker，经 host.docker.internal 访问已映射端口）
+# 由 SPRING_PROFILES_ACTIVE=prod 激活；开发机 Windows 仍用 bootstrap.yml + profile=dev
 spring:
+  data:
+    redis:
+      host: host.docker.internal
+      port: 6379
+      password: ""
   cloud:
     nacos:
       discovery:
+        server-addr: host.docker.internal:8848
+        username: nacos
+        password: nacos
         namespace: hbbxl
       config:
+        server-addr: host.docker.internal:8848
+        username: nacos
+        password: nacos
         namespace: hbbxl
+        file-extension: yaml

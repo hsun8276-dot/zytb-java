@@ -16,10 +16,9 @@
 
 ## 环境约定
 
-- **Nacos**: 81.70.105.12:8848,命名空间 `hbbxl`(生产)/`hbbxl-test`(本地开发)
-- **MySQL**: 127.0.0.1:3306,库 **`zytb`**,用户 `root`/密码 `root`(表结构脚本见 docs/sql/rebuild/)
-- **Redis**: 81.70.105.12:6379(token 前缀 `hbbxl:token:`)
-- 多 Profile:bootstrap.yml(默认dev) + bootstrap-dev/test.yml(hbbxl-test) + bootstrap-prod.yml(hbbxl),容器内 ENV SPRING_PROFILES_ACTIVE=prod
+- **开发(Windows)**: `start-all.ps1` → profile `dev`；MySQL `127.0.0.1:3306/zytb`；Nacos/Redis 见各服务 `bootstrap.yml`
+- **生产(Mac Docker Desktop)**: `docker-compose.mac.yml` → profile `prod`；中间件经 `host.docker.internal`（见 `bootstrap-prod.yml`）；命名空间 `hbbxl`
+- 表结构脚本见 docs/sql/rebuild/；Redis token 前缀 `hbbxl:token:`
 
 ## 快速开始
 

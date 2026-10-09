@@ -1,6 +1,20 @@
-# 生产环境(由Docker镜像 SPRING_PROFILES_ACTIVE=prod 激活)
+# 生产环境 = Mac Docker Desktop（中间件经 host.docker.internal）
 spring:
   cloud:
     nacos:
       discovery:
+        server-addr: host.docker.internal:8848
+        username: nacos
+        password: nacos
         namespace: hbbxl
+  datasource:
+    url: jdbc:mysql://host.docker.internal:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+minio:
+  endpoint: http://host.docker.internal:9010
+  access-key: minio
+  secret-key: minioadmin
+  bucket: hbbxl
+  public-endpoint: http://host.docker.internal:9010

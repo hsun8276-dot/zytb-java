@@ -1,8 +1,27 @@
-# 生产环境(由Docker镜像 SPRING_PROFILES_ACTIVE=prod 激活)
+# 生产环境 = Mac Docker Desktop（中间件经 host.docker.internal）
 spring:
   cloud:
     nacos:
       discovery:
+        server-addr: host.docker.internal:8848
+        username: nacos
+        password: nacos
         namespace: hbbxl
       config:
+        server-addr: host.docker.internal:8848
+        username: nacos
+        password: nacos
         namespace: hbbxl
+        file-extension: yaml
+        import-check:
+          enabled: false
+  datasource:
+    url: jdbc:mysql://host.docker.internal:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+  data:
+    redis:
+      host: host.docker.internal
+      port: 6379
+      password: ""
+      database: 0
