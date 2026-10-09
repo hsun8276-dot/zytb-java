@@ -63,8 +63,8 @@ def main():
     files = sys.argv[1:]
     if not files:
         print("用法: python import_hebei_score_line.py <xlsx...>"); return
-    conn = pymysql.connect(host="81.70.105.12", port=3306, user="root",
-                           password="Wyl123...", database="zytb", charset="utf8mb4")
+    conn = pymysql.connect(host="127.0.0.1", port=3306, user="root",
+                           password="root", database="zytb", charset="utf8mb4")
     cur = conn.cursor()
     for path in files:
         got = parse_file(path)

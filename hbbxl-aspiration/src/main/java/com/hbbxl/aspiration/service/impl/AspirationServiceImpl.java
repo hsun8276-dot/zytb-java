@@ -85,6 +85,8 @@ public class AspirationServiceImpl implements AspirationService {
                 .map(s -> (String) s.get("recruit_major_id")).collect(Collectors.toList());
         Map<String, Map<String, Object>> byRid = fillDao.majorsByRids(rids).stream()
                 .collect(Collectors.toMap(m -> (String) m.get("recruit_major_id"), Function.identity(), (x, y) -> x));
+        Map<String, List<Map<String, Object>>> histByRid = fillDao.historiesByRids(rids).stream()
+                .collect(Collectors.groupingBy(h -> (String) h.get("recruit_major_id")));
 
         List<Map<String, Object>> majors = new ArrayList<>();
         int serial = 1;
@@ -98,6 +100,9 @@ public class AspirationServiceImpl implements AspirationService {
             row.put("majorCode", m.get("recruit_major_code"));
             row.put("majorName", m.get("major_name"));
             Integer cut = toIntOrNull(m.get("pre_min_mark"));
+            if (cut == null) {
+                cut = FillDao.medianEquivalentMin(histByRid.getOrDefault(rid, List.of()));
+            }
             row.put("cutOff", cut);
             int cmp = 0;
             if (cut != null && a.getScore() != null) {

@@ -19,10 +19,10 @@ sys.stdout.reconfigure(encoding='utf-8')
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
 RAW_DIR = os.path.join(REPO, 'data_raw')
 
-DB = dict(host=os.environ.get('ZYTB_DB_HOST', '81.70.105.12'),
+DB = dict(host=os.environ.get('ZYTB_DB_HOST', '127.0.0.1'),
           port=int(os.environ.get('ZYTB_DB_PORT', '3306')),
           user=os.environ.get('ZYTB_DB_USER', 'root'),
-          password=os.environ.get('ZYTB_DB_PASS', 'Wyl123...'),
+          password=os.environ.get('ZYTB_DB_PASS', 'root'),
           database=os.environ.get('ZYTB_DB_NAME', 'zytb'),
           charset='utf8mb4')
 

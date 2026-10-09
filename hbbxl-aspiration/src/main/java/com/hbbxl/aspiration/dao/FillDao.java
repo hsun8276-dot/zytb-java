@@ -169,8 +169,45 @@ public class FillDao {
 
     /* ---------------- 招生专业 ---------------- */
 
+    /**
+     * 无官方投档时的展示预测分: 历年等效最低分中位数。偶数个取中间两数平均后四舍五入。
+     * 只参与查询和接口返回, 不写回 recruit_major.pre_min_mark。
+     */
+    private static final String EST_PRE_MIN_JOIN = " LEFT JOIN ("
+            + " SELECT recruit_major_id, ROUND(AVG(eq)) AS est_pre_min FROM ("
+            + " SELECT recruit_major_id, equivalent_min_mark AS eq,"
+            + " ROW_NUMBER() OVER (PARTITION BY recruit_major_id ORDER BY equivalent_min_mark) AS rn,"
+            + " COUNT(*) OVER (PARTITION BY recruit_major_id) AS cnt"
+            + " FROM recruit_major_history WHERE equivalent_min_mark IS NOT NULL"
+            + " ) x WHERE rn IN (FLOOR((cnt + 1) / 2), CEIL((cnt + 1) / 2))"
+            + " GROUP BY recruit_major_id"
+            + ") est ON est.recruit_major_id = m.recruit_major_id";
+
+    /** 过滤/排序用。有官方投档用原列, 否则用上面的中位数。 */
+    public static final String EFFECTIVE_PRE_MIN = "COALESCE(m.pre_min_mark, est.est_pre_min)";
+
+    public static Integer medianEquivalentMin(List<Map<String, Object>> hist) {
+        List<Integer> eqs = new ArrayList<>();
+        for (Map<String, Object> h : hist) {
+            Object v = h.get("equivalent_min_mark");
+            if (v instanceof Number n) {
+                eqs.add(n.intValue());
+            }
+        }
+        if (eqs.isEmpty()) {
+            return null;
+        }
+        Collections.sort(eqs);
+        int n = eqs.size();
+        if ((n & 1) == 1) {
+            return eqs.get(n / 2);
+        }
+        return (int) Math.round((eqs.get(n / 2 - 1) + eqs.get(n / 2)) / 2.0);
+    }
+
     public List<Map<String, Object>> queryMajors(String whereAndOrder, SqlParameterSource p) {
-        return jdbc.queryForList("SELECT " + MAJOR_COLUMNS + " FROM recruit_major m WHERE " + whereAndOrder, p);
+        return jdbc.queryForList("SELECT " + MAJOR_COLUMNS + " FROM recruit_major m" + EST_PRE_MIN_JOIN
+                + " WHERE " + whereAndOrder, p);
     }
 
     public List<Map<String, Object>> majorsByRids(Collection<String> rids) {
@@ -277,7 +314,7 @@ public class FillDao {
         p.addValue("recommendCode", code);
         return jdbc.update("INSERT INTO aspiration_recommend (aspiration_code, recruit_major_id, sort_no)"
                 + " SELECT :recommendCode, m.recruit_major_id, ROW_NUMBER() OVER (ORDER BY " + orderBy + ")"
-                + " FROM recruit_major m WHERE " + where, p);
+                + " FROM recruit_major m" + EST_PRE_MIN_JOIN + " WHERE " + where, p);
     }
 
     public List<String> recommendPage(String code, int offset, int limit) {

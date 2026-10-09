@@ -165,7 +165,7 @@ public class FillServiceImpl implements FillService {
 
         MapSqlParameterSource p = new MapSqlParameterSource();
         StringBuilder where = new StringBuilder(baseScope(a, p));
-        where.append(" AND m.pre_min_mark BETWEEN :low AND :high");
+        where.append(" AND ").append(FillDao.EFFECTIVE_PRE_MIN).append(" BETWEEN :low AND :high");
         p.addValue("low", low).addValue("high", high);
         where.append(subjectCondition(a, p));
         where.append(univFilterCondition(code, p));
@@ -175,7 +175,7 @@ public class FillServiceImpl implements FillService {
         fillDao.deleteRecommend(code);
         // 排序: 预测最低分从高到低(冲→稳→保), 与源站推荐列表一致; 一键填报按此序取前 N
         int count = fillDao.insertRecommend(code, where.toString(),
-                "m.pre_min_mark DESC, m.unv_code, m.recruit_major_code", p);
+                FillDao.EFFECTIVE_PRE_MIN + " DESC, m.unv_code, m.recruit_major_code", p);
 
         Aspiration up = new Aspiration();
         up.setId(a.getId());
@@ -214,10 +214,11 @@ public class FillServiceImpl implements FillService {
         where.append(searchTextCondition(body, p));
         Integer maxMark = toIntOrNull(body.get("maxMark"));
         if (maxMark != null) {
-            where.append(" AND m.pre_min_mark <= :maxMark");
+            where.append(" AND ").append(FillDao.EFFECTIVE_PRE_MIN).append(" <= :maxMark");
             p.addValue("maxMark", maxMark);
         }
-        where.append(" ORDER BY m.pre_min_mark IS NULL, m.pre_min_mark DESC, m.unv_code, m.recruit_major_code LIMIT ")
+        where.append(" ORDER BY ").append(FillDao.EFFECTIVE_PRE_MIN).append(" IS NULL, ")
+                .append(FillDao.EFFECTIVE_PRE_MIN).append(" DESC, m.unv_code, m.recruit_major_code LIMIT ")
                 .append(SEARCH_UNV_LIMIT);
         List<Map<String, Object>> rows = buildRowsFromMajors(fillDao.queryMajors(where.toString(), p), a);
         rows.sort(Comparator.comparingDouble((Map<String, Object> r) -> (Double) r.get("RecruitProbability"))
@@ -559,10 +560,15 @@ public class FillServiceImpl implements FillService {
         String province = (String) m0.get("province");
         int year = toInt(m0.get("year"));
 
-        Integer preMin = majors.stream().map(m -> toIntOrNull(m.get("pre_min_mark")))
+        Map<String, List<Map<String, Object>>> histByRid = fillDao.historiesByRids(
+                        majors.stream().map(m -> (String) m.get("recruit_major_id")).toList()).stream()
+                .collect(Collectors.groupingBy(h -> (String) h.get("recruit_major_id")));
+        Integer preMin = majors.stream()
+                .map(m -> displayPreMin(m, histByRid.getOrDefault((String) m.get("recruit_major_id"), List.of())))
                 .filter(Objects::nonNull).min(Integer::compare).orElse(null);
         Integer preAvg = weightedAvg(majors.stream()
-                .map(m -> new Integer[]{firstNonNull(toIntOrNull(m.get("pre_avg_mark")), toIntOrNull(m.get("pre_min_mark"))),
+                .map(m -> new Integer[]{firstNonNull(toIntOrNull(m.get("pre_avg_mark")),
+                        displayPreMin(m, histByRid.getOrDefault((String) m.get("recruit_major_id"), List.of()))),
                         toIntOrNull(m.get("major_plan"))}).toList());
 
         Map<String, Object> info = new LinkedHashMap<>();
@@ -596,7 +602,7 @@ public class FillServiceImpl implements FillService {
             r.put("MajorPlan", m.get("major_plan"));
             r.put("PredictMethod", "常规预测");
             r.put("PreAvgMark", m.get("pre_avg_mark"));
-            r.put("PreMinMark", m.get("pre_min_mark"));
+            r.put("PreMinMark", displayPreMin(m, histByRid.getOrDefault((String) m.get("recruit_major_id"), List.of())));
             r.put("PreAvgPercentile", null);
             r.put("PreMinPercentile", toDouble(m.get("pre_min_percentile")));
             return r;
@@ -632,7 +638,7 @@ public class FillServiceImpl implements FillService {
         String batch = (String) m.get("batch");
         int year = toInt(m.get("year"));
         Integer preAvg = toIntOrNull(m.get("pre_avg_mark"));
-        Integer preMin = toIntOrNull(m.get("pre_min_mark"));
+        Integer preMin = displayPreMin(m, fillDao.historiesByRids(List.of(rid)));
         Integer avgRank = rankOf(province, year, st, preAvg);
         Integer minRank = firstNonNull(toIntOrNull(m.get("pre_min_rank")), rankOf(province, year, st, preMin));
 
@@ -1059,7 +1065,7 @@ public class FillServiceImpl implements FillService {
         r.put("UnvFirstTimeAdmission", toInt(m.get("first_time_admission")) == 1);
         r.put("MajorAttendtionType", nvl((String) m.get("attention_type")).isEmpty() ? "No" : m.get("attention_type"));
         Integer preAvg = toIntOrNull(m.get("pre_avg_mark"));
-        Integer preMin = toIntOrNull(m.get("pre_min_mark"));
+        Integer preMin = displayPreMin(m, hist);
         r.put("PreAvgMark", preAvg);
         r.put("PreMinMark", preMin);
         r.put("PreAvgMarkRank", null);
@@ -1093,6 +1099,12 @@ public class FillServiceImpl implements FillService {
         }
         r.put("MajorHistorys", histories);
         return r;
+    }
+
+    /** 有官方投档用原值。没有则用历年等效最低分中位数, 只放进返回值。 */
+    private Integer displayPreMin(Map<String, Object> m, List<Map<String, Object>> hist) {
+        Integer official = toIntOrNull(m.get("pre_min_mark"));
+        return official != null ? official : FillDao.medianEquivalentMin(hist);
     }
 
     /** 参考系统 CalculateProbability: 两个预测分都缺=9999(未知), 缺一个用另一个顶 */

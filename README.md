@@ -17,7 +17,7 @@
 ## 环境约定
 
 - **Nacos**: 81.70.105.12:8848,命名空间 `hbbxl`(生产)/`hbbxl-test`(本地开发)
-- **MySQL**: 81.70.105.12:3306,库 **`zytb`**(表结构脚本见 docs/sql/rebuild/)
+- **MySQL**: 127.0.0.1:3306,库 **`zytb`**,用户 `root`/密码 `root`(表结构脚本见 docs/sql/rebuild/)
 - **Redis**: 81.70.105.12:6379(token 前缀 `hbbxl:token:`)
 - 多 Profile:bootstrap.yml(默认dev) + bootstrap-dev/test.yml(hbbxl-test) + bootstrap-prod.yml(hbbxl),容器内 ENV SPRING_PROFILES_ACTIVE=prod
 
