@@ -1,0 +1,91 @@
+# GitHub Actions：打包 7 个后端 linux/arm64 镜像并推到 GHCR（可替代 Jenkins）
+# 前置：
+#   1. 把 zytb-java 推到 GitHub（公开或私有均可）
+#   2. 仓库 Settings → Actions → General → Workflow permissions 勾选 Read and write
+# 镜像: ghcr.io/<owner>/hbbxl-gateway:latest 等
+# Mac 拉取: echo $CR_PAT | docker login ghcr.io -u USER --password-stdin
+#           docker pull ghcr.io/<owner>/hbbxl-gateway:latest
+name: Build backend images (arm64)
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  PLATFORM: linux/arm64
+
+jobs:
+  maven:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache Maven jars
+        uses: actions/cache@v4
+        with:
+          path: backend-target
+          key: jars-${{ github.sha }}
+          restore-keys: jars-
+      - name: Maven package
+        run: |
+          docker run --rm \
+            -v "$PWD":/src -w /src \
+            -v hbbxl_m2:/root/.m2 \
+            -v "$PWD/docker/maven-settings.xml":/opt/settings.xml:ro \
+            maven:3.9-eclipse-temurin-17 \
+            mvn -q -s /opt/settings.xml -DskipTests package
+          mkdir -p backend-target
+          for svc in gateway auth user college score aspiration recommend; do
+            mkdir -p "backend-target/hbbxl-$svc"
+            cp "hbbxl-$svc/target/hbbxl-$svc-1.0.0-SNAPSHOT.jar" "backend-target/hbbxl-$svc/"
+          done
+      - name: Upload jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jars
+          path: backend-target
+
+  image:
+    needs: maven
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [gateway, auth, user, college, score, aspiration, recommend]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download jars
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jars
+          path: backend-target
+      - name: Place jar
+        run: |
+          mkdir -p "hbbxl-${{ matrix.service }}/target"
+          cp "backend-target/hbbxl-${{ matrix.service }}/hbbxl-${{ matrix.service }}-1.0.0-SNAPSHOT.jar" \
+             "hbbxl-${{ matrix.service }}/target/"
+          cp docker/Dockerfile.backend "hbbxl-${{ matrix.service }}/Dockerfile"
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: hbbxl-${{ matrix.service }}
+          platforms: ${{ env.PLATFORM }}
+          push: true
+          build-args: |
+            JAR_FILE=target/hbbxl-${{ matrix.service }}-1.0.0-SNAPSHOT.jar
+            SPRING_PROFILES_ACTIVE=prod
+          # 与 compose 一致: ${REGISTRY_PREFIX}hbbxl/gateway → ghcr.io/<owner>/hbbxl/gateway
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/hbbxl/${{ matrix.service }}:latest
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/hbbxl/${{ matrix.service }}:${{ github.sha }}
