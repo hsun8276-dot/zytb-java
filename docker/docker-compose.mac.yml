@@ -1,0 +1,150 @@
+# Mac Docker Desktop（含 Apple Silicon M4）用：bridge 网络，不用 host。
+# 前置：本机已有 MySQL / Redis / Nacos / MinIO 容器，且端口已映射到 Mac
+#   （默认通过 host.docker.internal 访问；也可改成同网络容器名，见 .env.mac.example）
+#
+# 用法:
+#   cd docker
+#   cp .env.mac.example .env.mac   # 按你的账号密码改
+#   docker compose -p hbbxl -f docker-compose.mac.yml --env-file .env.mac up -d
+
+x-app-env: &app-env
+  TZ: Asia/Shanghai
+  SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+  # Nacos（Docker Desktop 已发布到本机端口时用 host.docker.internal）
+  SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: ${NACOS_ADDR:-host.docker.internal:8848}
+  SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: ${NACOS_ADDR:-host.docker.internal:8848}
+  SPRING_CLOUD_NACOS_DISCOVERY_USERNAME: ${NACOS_USERNAME:-nacos}
+  SPRING_CLOUD_NACOS_DISCOVERY_PASSWORD: ${NACOS_PASSWORD:-nacos}
+  SPRING_CLOUD_NACOS_CONFIG_USERNAME: ${NACOS_USERNAME:-nacos}
+  SPRING_CLOUD_NACOS_CONFIG_PASSWORD: ${NACOS_PASSWORD:-nacos}
+  SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ${NACOS_NAMESPACE:-hbbxl-test}
+  SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ${NACOS_NAMESPACE:-hbbxl-test}
+  # MySQL
+  SPRING_DATASOURCE_URL: ${MYSQL_JDBC:-jdbc:mysql://host.docker.internal:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+  SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-root}
+  SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-root}
+  # Redis
+  SPRING_DATA_REDIS_HOST: ${REDIS_HOST:-host.docker.internal}
+  SPRING_DATA_REDIS_PORT: ${REDIS_PORT:-6379}
+  SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+  # MinIO（院校 logo；仅部分服务读取）
+  MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://host.docker.internal:9010}
+  MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-http://host.docker.internal:9010}
+  MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minio}
+  MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+  MINIO_BUCKET: ${MINIO_BUCKET:-hbbxl}
+
+services:
+  hbbxl-gateway:
+    image: ${REGISTRY_PREFIX:-}hbbxl/gateway:latest
+    container_name: hbbxl-gateway
+    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    restart: unless-stopped
+    pull_policy: never
+    ports:
+      - "8800:8800"
+    environment:
+      <<: *app-env
+    networks: [hbbxl-net]
+    mem_limit: 512m
+
+  hbbxl-auth:
+    image: ${REGISTRY_PREFIX:-}hbbxl/auth:latest
+    container_name: hbbxl-auth
+    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    restart: unless-stopped
+    pull_policy: never
+    ports:
+      - "8801:8801"
+    environment:
+      <<: *app-env
+    networks: [hbbxl-net]
+    mem_limit: 352m
+
+  hbbxl-user:
+    image: ${REGISTRY_PREFIX:-}hbbxl/user:latest
+    container_name: hbbxl-user
+    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    restart: unless-stopped
+    pull_policy: never
+    ports:
+      - "8802:8802"
+    environment:
+      <<: *app-env
+    networks: [hbbxl-net]
+    mem_limit: 352m
+
+  hbbxl-college:
+    image: ${REGISTRY_PREFIX:-}hbbxl/college:latest
+    container_name: hbbxl-college
+    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    restart: unless-stopped
+    pull_policy: never
+    ports:
+      - "8803:8803"
+    environment:
+      <<: *app-env
+    networks: [hbbxl-net]
+    mem_limit: 352m
+
+  hbbxl-score:
+    image: ${REGISTRY_PREFIX:-}hbbxl/score:latest
+    container_name: hbbxl-score
+    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    restart: unless-stopped
+    pull_policy: never
+    ports:
+      - "8804:8804"
+    environment:
+      <<: *app-env
+    networks: [hbbxl-net]
+    mem_limit: 352m
+
+  hbbxl-aspiration:
+    image: ${REGISTRY_PREFIX:-}hbbxl/aspiration:latest
+    container_name: hbbxl-aspiration
+    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    restart: unless-stopped
+    pull_policy: never
+    ports:
+      - "8805:8805"
+    environment:
+      <<: *app-env
+    networks: [hbbxl-net]
+    mem_limit: 512m
+
+  hbbxl-recommend:
+    image: ${REGISTRY_PREFIX:-}hbbxl/recommend:latest
+    container_name: hbbxl-recommend
+    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    restart: unless-stopped
+    pull_policy: never
+    ports:
+      - "8806:8806"
+    environment:
+      <<: *app-env
+    networks: [hbbxl-net]
+    mem_limit: 352m
+
+  hbbxl-web:
+    image: ${REGISTRY_PREFIX:-}hbbxl/web:latest
+    container_name: hbbxl-web
+    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    restart: unless-stopped
+    pull_policy: never
+    ports:
+      - "${WEB_PORT:-80}:80"
+    environment:
+      TZ: Asia/Shanghai
+      NGINX_PORT: "80"
+      # 走 compose 内网服务名，不要用 127.0.0.1
+      GATEWAY_UPSTREAM: hbbxl-gateway:8800
+    depends_on:
+      - hbbxl-gateway
+    networks: [hbbxl-net]
+    mem_limit: 128m
+
+networks:
+  hbbxl-net:
+    name: hbbxl-net
+    driver: bridge
