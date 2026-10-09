@@ -3,32 +3,32 @@
 #
 # 用法:
 #   docker network create hbbxl-net 2>/dev/null || true
-#   docker network connect hbbxl-net <mysql容器名>
-#   docker network connect hbbxl-net <redis容器名>
-#   docker network connect hbbxl-net <nacos容器名>
-#   docker network connect hbbxl-net <minio容器名>
-#   cp .env.mac.example .env.mac   # 把主机名改成你的真实容器名
+#   docker network connect hbbxl-net dz-mysql
+#   docker network connect hbbxl-net dz-redis
+#   docker network connect hbbxl-net dz-nacos
+#   docker network connect hbbxl-net dz-minio
+#   cp .env.mac.example .env.mac   # 按实际密码修改
 #   docker compose -p hbbxl -f docker-compose.mac.yml --env-file .env.mac up -d
 
 x-app-env: &app-env
   TZ: Asia/Shanghai
   SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
-  SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: ${NACOS_ADDR:-nacos:8848}
-  SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: ${NACOS_ADDR:-nacos:8848}
+  SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: ${NACOS_ADDR:-dz-nacos:8848}
+  SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: ${NACOS_ADDR:-dz-nacos:8848}
   SPRING_CLOUD_NACOS_DISCOVERY_USERNAME: ${NACOS_USERNAME:-nacos}
   SPRING_CLOUD_NACOS_DISCOVERY_PASSWORD: ${NACOS_PASSWORD:-nacos}
   SPRING_CLOUD_NACOS_CONFIG_USERNAME: ${NACOS_USERNAME:-nacos}
   SPRING_CLOUD_NACOS_CONFIG_PASSWORD: ${NACOS_PASSWORD:-nacos}
   SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ${NACOS_NAMESPACE:-hbbxl}
   SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ${NACOS_NAMESPACE:-hbbxl}
-  SPRING_DATASOURCE_URL: ${MYSQL_JDBC:-jdbc:mysql://mysql:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+  SPRING_DATASOURCE_URL: ${MYSQL_JDBC:-jdbc:mysql://dz-mysql:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
   SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-root}
   SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-root}
-  SPRING_DATA_REDIS_HOST: ${REDIS_HOST:-redis}
+  SPRING_DATA_REDIS_HOST: ${REDIS_HOST:-dz-redis}
   SPRING_DATA_REDIS_PORT: ${REDIS_PORT:-6379}
   SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-}
-  MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://minio:9000}
-  MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-http://127.0.0.1:9010}
+  MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://dz-minio:9000}
+  MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-http://127.0.0.1:9000}
   MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minio}
   MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
   MINIO_BUCKET: ${MINIO_BUCKET:-hbbxl}

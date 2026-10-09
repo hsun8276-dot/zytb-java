@@ -1,22 +1,20 @@
-# 生产 = Mac Docker Desktop（同网络容器名互通）
+# 生产 = Mac Docker Desktop（同网络；容器名 dz-*）
 spring:
   cloud:
     nacos:
       discovery:
-        server-addr: nacos:8848
+        server-addr: dz-nacos:8848
         username: nacos
         password: nacos
         namespace: hbbxl
   datasource:
-    url: jdbc:mysql://mysql:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://dz-mysql:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: root
 
 minio:
-  # 容器内访问 API
-  endpoint: http://minio:9000
+  endpoint: http://dz-minio:9000
   access-key: minio
   secret-key: minioadmin
   bucket: hbbxl
-  # 浏览器访问用 Mac 映射端口（按你桌面实际改 .env.mac）
-  public-endpoint: http://127.0.0.1:9010
+  public-endpoint: http://127.0.0.1:9000
