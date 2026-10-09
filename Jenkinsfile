@@ -1,4 +1,6 @@
-// 志愿填报 CI/CD —— Jenkins 只负责构建镜像, 部署由手动执行
+// 志愿填报 CI/CD —— 只打包镜像，不自动部署
+// 生产环境 = 开发者 Mac Docker Desktop（Apple Silicon → linux/arm64 + profile=prod）
+// 开发环境 = Windows 本机 jar（profile=dev），不走本流水线
 pipeline {
     agent any
 
@@ -12,7 +14,8 @@ pipeline {
         GIT_CREDENTIALS_ID = 'ad6fd866-21f0-4a9a-b4a6-8616e9d8bef0'
         BACKEND_REPO  = 'https://gitee.com/sh0818/zytb-java.git'
         FRONTEND_REPO = 'https://gitee.com/sh0818/zytb-vue.git'
-        PLATFORM = 'linux/amd64'
+        // Mac M 系列 Docker Desktop
+        PLATFORM = 'linux/arm64'
         SERVICES = 'gateway auth user college score aspiration recommend'
         JENKINS_CONTAINER = '1Panel-jenkins-AGje'
     }
@@ -41,7 +44,6 @@ pipeline {
             steps {
                 dir('backend') {
                     sh '''
-                        # 自动发现 jenkins_home 的宿主机真实路径(兼容1Panel数据卷)
                         JHOME_HOST=$(docker inspect ${JENKINS_CONTAINER} --format '{{ range .Mounts }}{{ if eq .Destination "/var/jenkins_home" }}{{ .Source }}{{ end }}{{ end }}')
                         [ -z "$JHOME_HOST" ] && JHOME_HOST="/var/jenkins_home"
                         SRC_HOST="$JHOME_HOST/workspace/${JOB_NAME}/backend"
@@ -56,13 +58,15 @@ pipeline {
             }
         }
 
-        stage('构建镜像: 7 后端 + 1 前端') {
+        stage('构建镜像: 7 后端 + 1 前端 (arm64/prod→Mac)') {
             steps {
                 dir('backend') {
                     sh '''
+                        docker buildx create --name hbbxl-builder --use 2>/dev/null || docker buildx use hbbxl-builder
+                        docker buildx inspect --bootstrap >/dev/null
                         for svc in $SERVICES; do
                           cp docker/Dockerfile.backend "hbbxl-$svc/Dockerfile"
-                          docker build --platform ${PLATFORM} \
+                          docker buildx build --platform ${PLATFORM} --load \
                             --build-arg JAR_FILE="target/hbbxl-$svc-1.0.0-SNAPSHOT.jar" \
                             --build-arg SPRING_PROFILES_ACTIVE=prod \
                             -t "hbbxl/$svc:latest" \
@@ -71,14 +75,41 @@ pipeline {
                     '''
                 }
                 dir('frontend') {
-                    sh 'docker build --platform ${PLATFORM} -t hbbxl/web:latest .'
+                    sh '''
+                        docker buildx create --name hbbxl-builder --use 2>/dev/null || docker buildx use hbbxl-builder
+                        docker buildx build --platform ${PLATFORM} --load -t hbbxl/web:latest .
+                    '''
                 }
+            }
+        }
+
+        stage('导出镜像包(可选下载到 Mac)') {
+            steps {
+                sh '''
+                    OUT_DIR="$WORKSPACE/hbbxl-images"
+                    mkdir -p "$OUT_DIR"
+                    docker save -o "$OUT_DIR/hbbxl-mac-arm64.tar" \
+                      hbbxl/gateway:latest \
+                      hbbxl/auth:latest \
+                      hbbxl/user:latest \
+                      hbbxl/college:latest \
+                      hbbxl/score:latest \
+                      hbbxl/aspiration:latest \
+                      hbbxl/recommend:latest \
+                      hbbxl/web:latest
+                    ls -lh "$OUT_DIR/hbbxl-mac-arm64.tar"
+                    echo "==> 产物路径(Jenkins 工作区): $OUT_DIR/hbbxl-mac-arm64.tar"
+                    echo "==> 拷到 Mac 后执行: docker load -i hbbxl-mac-arm64.tar"
+                '''
+                archiveArtifacts artifacts: 'hbbxl-images/hbbxl-mac-arm64.tar', fingerprint: true, allowEmptyArchive: false
             }
         }
     }
 
     post {
-        success { echo '✅ 8 个镜像构建完成(后端=prod/命名空间hbbxl)。可在构建机 docker save 后拷到目标机，或手动 compose 部署。' }
+        success {
+            echo '✅ 已构建 linux/arm64 + prod 镜像，并归档 hbbxl-mac-arm64.tar。下载后在 Mac: docker load -i hbbxl-mac-arm64.tar，再用 docker-compose.mac.yml 启动。'
+        }
         failure { echo '❌ 构建失败, 请查看上方日志' }
     }
 }
