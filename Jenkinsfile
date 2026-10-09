@@ -46,7 +46,11 @@ pipeline {
                         [ -z "$JHOME_HOST" ] && JHOME_HOST="/var/jenkins_home"
                         SRC_HOST="$JHOME_HOST/workspace/${JOB_NAME}/backend"
                         echo "==> 源码宿主机路径: $SRC_HOST"
-                        docker run --rm -v "$SRC_HOST":/src -w /src                           -v hbbxl_m2:/root/.m2                           -v "$SRC_HOST/docker/maven-settings.xml":/opt/settings.xml:ro                           --memory 1g maven:3.9-eclipse-temurin-17                           mvn -q -s /opt/settings.xml -DskipTests package
+                        docker run --rm -v "$SRC_HOST":/src -w /src \
+                          -v hbbxl_m2:/root/.m2 \
+                          -v "$SRC_HOST/docker/maven-settings.xml":/opt/settings.xml:ro \
+                          --memory 1g maven:3.9-eclipse-temurin-17 \
+                          mvn -q -s /opt/settings.xml -DskipTests package
                     '''
                 }
             }
@@ -58,7 +62,11 @@ pipeline {
                     sh '''
                         for svc in $SERVICES; do
                           cp docker/Dockerfile.backend "hbbxl-$svc/Dockerfile"
-                          docker build --platform ${PLATFORM}                             --build-arg JAR_FILE="target/hbbxl-$svc-1.0.0-SNAPSHOT.jar"                             -t "hbbxl/$svc:latest"                             "hbbxl-$svc"
+                          docker build --platform ${PLATFORM} \
+                            --build-arg JAR_FILE="target/hbbxl-$svc-1.0.0-SNAPSHOT.jar" \
+                            --build-arg SPRING_PROFILES_ACTIVE=prod \
+                            -t "hbbxl/$svc:latest" \
+                            "hbbxl-$svc"
                         done
                     '''
                 }
@@ -70,7 +78,7 @@ pipeline {
     }
 
     post {
-        success { echo '✅ 8 个镜像构建完成, 可手动部署: cd <后端仓库>/docker && docker compose -p hbbxl -f docker-compose.yml --env-file .env up -d --pull never' }
+        success { echo '✅ 8 个镜像构建完成(后端=prod/命名空间hbbxl)。可在构建机 docker save 后拷到目标机，或手动 compose 部署。' }
         failure { echo '❌ 构建失败, 请查看上方日志' }
     }
 }
