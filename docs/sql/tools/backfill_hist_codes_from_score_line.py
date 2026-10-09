@@ -7,9 +7,12 @@
   3. 归一化院校名 + 专业名 + 投档最低分
   4. 当前 unv_code + 投档最低分(唯一)
   5. 当前 unv_code + 专业名
+  6. 归一化院校名 + 专业名去括号后唯一; 多条再用最低分唯一
+     (只写空码, 已有 hist_recruit_major_id 不覆盖; 一对多留空)
 
 写入伪 ID: {yy}冀{本|专}{理|文}{当年院校代码}-{当年专业代码}
 与 FillServiceImpl.unvCodeOf/majorCodeOf 解析一致。
+依据仅 zytb.score_line(河北考试院投档导入), 不抄格学。
 
 用法:
   python backfill_hist_codes_from_score_line.py [--dry-run]
@@ -33,6 +36,13 @@ def norm_name(s):
     s = re.sub(r"\[[^\]]*\]", "", str(s or ""))
     s = re.sub(r"\([^)]*\)", "", s)
     s = re.sub(r"（[^）]*）", "", s)
+    return re.sub(r"\s+", "", s)
+
+
+def major_base(s):
+    """去掉专业名括号及之后备注, 作宽松唯一匹配。"""
+    s = str(s or "").strip()
+    s = re.sub(r"[\(（].*$", "", s)
     return re.sub(r"\s+", "", s)
 
 
@@ -88,6 +98,7 @@ def main():
     by_unv_mark = collections.defaultdict(list)  # (y,b,st,unv,mark) -> [(unv,maj)]
     by_unv_mname = collections.defaultdict(list)  # (y,b,st,unv,mname) -> [(unv,maj)]
     by_names = collections.defaultdict(list)  # (y,b,st,norm_unv,mname) -> [(unv,maj,mark)]
+    by_base = collections.defaultdict(list)  # (y,b,st,norm_unv,major_base) -> [(unv,maj,mark)]
     n_line = 0
     for y, b, st, cc, mc, cn, mn, mm in cur.fetchall():
         if cc is None or mc is None:
@@ -104,6 +115,9 @@ def main():
         if mname:
             by_unv_mname[(y, b, st, unv, mname)].append(pair)
             by_names[(y, b, st, norm_name(cn), mname)].append((unv, maj, mm))
+            base = major_base(mname)
+            if base:
+                by_base[(y, b, st, norm_name(cn), base)].append((unv, maj, mm))
     print(f"  score_line rows: {n_line}", flush=True)
 
     print("scanning history...", flush=True)
@@ -174,6 +188,22 @@ def main():
                     found = marked[0]
                     how = "unv_name_mark"
 
+        # 6) 归一化校名 + 专业名去括号后唯一; 多条再用最低分唯一
+        # 依据: 同年同批同科类 score_line 唯一命中才写; 一对多留空
+        if found is None and mname:
+            base = major_base(mname)
+            if base:
+                cands = by_base.get((hy, batch, subject, norm_name(uname), base)) or []
+                pairs = uniq_pairs((u, m) for u, m, _ in cands)
+                if len(pairs) == 1:
+                    found = pairs[0]
+                    how = "fuzzy_major"
+                elif len(pairs) > 1 and hmark is not None:
+                    pairs2 = uniq_pairs((u, m) for u, m, mm in cands if mm == int(hmark))
+                    if len(pairs2) == 1:
+                        found = pairs2[0]
+                        how = "fuzzy_major_mark"
+
         if found is None:
             stats["miss"] += 1
             by_year_miss[hy] += 1
@@ -186,9 +216,14 @@ def main():
         if old == new_id:
             stats["already"] += 1
             continue
+        # 已有代码的不覆盖; 本轮只补空码(宽松专业名等新策略)
+        if old and str(old).strip():
+            stats["keep_existing"] += 1
+            continue
         updates.append((new_id, hid))
 
-    keys = ("code", "name", "name_mark", "unv_mark", "unv_name", "unv_name_mark")
+    keys = ("code", "name", "name_mark", "unv_mark", "unv_name", "unv_name_mark",
+            "fuzzy_major", "fuzzy_major_mark")
     print("match strategy:", {k: stats[k] for k in keys if stats[k]}, flush=True)
     print(
         f"  matched: {sum(by_year_ok.values())}  miss: {stats['miss']}  "

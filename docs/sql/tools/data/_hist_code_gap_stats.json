@@ -1,0 +1,1151 @@
+{
+  "source": {
+    "score_line": "zytb.score_line, province=河北, year=2022..2025 (考试院投档导入)",
+    "history": "zytb.recruit_major_history JOIN recruit_major year=2026",
+    "rule": "只统计相对 score_line 的唯一命中; 一对多不算可补; 本脚本不写库"
+  },
+  "score_line_rows_indexed": 168087,
+  "by_year": {
+    "2022": {
+      "history_total": 26403,
+      "already_has_code": 21629,
+      "missing_code": 4774,
+      "can_fill_by_fuzzy_major_unique": 1311,
+      "still_missing_if_only_fuzzy": 3463,
+      "fill_rate_of_missing_pct": 27.46
+    },
+    "2023": {
+      "history_total": 29349,
+      "already_has_code": 25703,
+      "missing_code": 3646,
+      "can_fill_by_fuzzy_major_unique": 1210,
+      "still_missing_if_only_fuzzy": 2436,
+      "fill_rate_of_missing_pct": 33.19
+    },
+    "2024": {
+      "history_total": 33689,
+      "already_has_code": 30859,
+      "missing_code": 2830,
+      "can_fill_by_fuzzy_major_unique": 1282,
+      "still_missing_if_only_fuzzy": 1548,
+      "fill_rate_of_missing_pct": 45.3
+    },
+    "2025": {
+      "history_total": 40107,
+      "already_has_code": 37703,
+      "missing_code": 2404,
+      "can_fill_by_fuzzy_major_unique": 992,
+      "still_missing_if_only_fuzzy": 1412,
+      "fill_rate_of_missing_pct": 41.26
+    }
+  },
+  "miss_reason_counts": {
+    "2022:college_ok_major_still_miss": 2627,
+    "2022:exact_name_multi": 28,
+    "2022:fuzzy_major_mark_unique": 239,
+    "2022:fuzzy_major_multi": 46,
+    "2022:fuzzy_major_unique": 1072,
+    "2022:no_college_in_score_line": 762,
+    "2023:college_ok_major_still_miss": 1582,
+    "2023:exact_name_multi": 33,
+    "2023:fuzzy_major_mark_unique": 204,
+    "2023:fuzzy_major_multi": 48,
+    "2023:fuzzy_major_unique": 1006,
+    "2023:no_college_in_score_line": 773,
+    "2024:college_ok_major_still_miss": 996,
+    "2024:exact_name_multi": 41,
+    "2024:fuzzy_major_mark_unique": 251,
+    "2024:fuzzy_major_multi": 49,
+    "2024:fuzzy_major_unique": 1031,
+    "2024:no_college_in_score_line": 462,
+    "2025:college_ok_major_still_miss": 904,
+    "2025:exact_name_multi": 80,
+    "2025:fuzzy_major_mark_unique": 208,
+    "2025:fuzzy_major_multi": 26,
+    "2025:fuzzy_major_unique": 784,
+    "2025:no_college_in_score_line": 402
+  },
+  "evidence_can_fill_samples": {
+    "2022": [
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2022,
+          "unv_name": "海口经济学院[民办]",
+          "major_name": "市场营销",
+          "major_base": "市场营销",
+          "min_mark": 202,
+          "rid": "26冀专文2414-43"
+        },
+        "score_line_hit": {
+          "college_code": "0568",
+          "major_code": "20",
+          "min_mark": 202,
+          "college_name": "海口经济学院[民办]",
+          "major_name": "市场营销(影视营销与制作)"
+        },
+        "would_write": "22冀专文0568-20"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2022,
+          "unv_name": "三亚城市职业学院[民办]",
+          "major_name": "应用英语",
+          "major_base": "应用英语",
+          "min_mark": 210,
+          "rid": "26冀专文2579-19"
+        },
+        "score_line_hit": {
+          "college_code": "1398",
+          "major_code": "17",
+          "min_mark": 210,
+          "college_name": "三亚城市职业学院[民办]",
+          "major_name": "应用英语(国际专本连读)"
+        },
+        "would_write": "22冀专文1398-17"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2022,
+          "unv_name": "三亚理工职业学院[民办]",
+          "major_name": "旅游管理",
+          "major_base": "旅游管理",
+          "min_mark": 200,
+          "rid": "26冀专文2582-05"
+        },
+        "score_line_hit": {
+          "college_code": "1401",
+          "major_code": "22",
+          "min_mark": 321,
+          "college_name": "三亚理工职业学院[民办]",
+          "major_name": "旅游管理(旅游电子商务)"
+        },
+        "would_write": "22冀专文1401-22"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2022,
+          "unv_name": "自贡职业技术学院[民办]",
+          "major_name": "应急救援技术",
+          "major_base": "应急救援技术",
+          "min_mark": 228,
+          "rid": "26冀专文2808-02"
+        },
+        "score_line_hit": {
+          "college_code": "2261",
+          "major_code": "01",
+          "min_mark": 228,
+          "college_name": "自贡职业技术学院[民办]",
+          "major_name": "应急救援技术(消防应急救援与安全管理)"
+        },
+        "would_write": "22冀专文2261-01"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2022,
+          "unv_name": "曹妃甸职业技术学院[民办]",
+          "major_name": "酒店管理与数字化运营",
+          "major_base": "酒店管理与数字化运营",
+          "min_mark": 297,
+          "rid": "26冀专文2267-46"
+        },
+        "score_line_hit": {
+          "college_code": "0196",
+          "major_code": "44",
+          "min_mark": 297,
+          "college_name": "曹妃甸职业技术学院[民办]",
+          "major_name": "酒店管理与数字化运营(国际酒店方向)"
+        },
+        "would_write": "22冀专文0196-44"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2022,
+          "unv_name": "北京经济技术职业学院[民办]",
+          "major_name": "学前教育(迪帆幼儿园班)",
+          "major_base": "学前教育",
+          "min_mark": 289,
+          "rid": "26冀专文2256-07"
+        },
+        "score_line_hit": {
+          "college_code": "0121",
+          "major_code": "09",
+          "min_mark": 289,
+          "college_name": "北京经济技术职业学院[民办]",
+          "major_name": "学前教育(幼儿园订单班)"
+        },
+        "would_write": "22冀专文0121-09"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2022,
+          "unv_name": "北京培黎职业学院[民办]",
+          "major_name": "新闻采编与制作",
+          "major_base": "新闻采编与制作",
+          "min_mark": 261,
+          "rid": "26冀专文2260-07"
+        },
+        "score_line_hit": {
+          "college_code": "0137",
+          "major_code": "08",
+          "min_mark": 261,
+          "college_name": "北京培黎职业学院[民办]",
+          "major_name": "新闻采编与制作(新媒体采编与直播主持)"
+        },
+        "would_write": "22冀专文0137-08"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2022,
+          "unv_name": "渤海理工职业学院(黄骅市)[民办]",
+          "major_name": "无人机应用技术(航拍测绘)",
+          "major_base": "无人机应用技术",
+          "min_mark": 289,
+          "rid": "26冀专文2264-12"
+        },
+        "score_line_hit": {
+          "college_code": "0183",
+          "major_code": "04",
+          "min_mark": 289,
+          "college_name": "渤海理工职业学院(黄骅市)[民办]",
+          "major_name": "无人机应用技术"
+        },
+        "would_write": "22冀专文0183-04"
+      }
+    ],
+    "2023": [
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2023,
+          "unv_name": "贵州城市职业学院[民办]",
+          "major_name": "大数据技术(华为人工智能方向)",
+          "major_base": "大数据技术",
+          "min_mark": 232,
+          "rid": "26冀专文2388-19"
+        },
+        "score_line_hit": {
+          "college_code": "0547",
+          "major_code": "04",
+          "min_mark": 232,
+          "college_name": "贵州城市职业学院[民办]",
+          "major_name": "大数据技术"
+        },
+        "would_write": "23冀专文0547-04"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2023,
+          "unv_name": "海口经济学院[民办]",
+          "major_name": "市场营销",
+          "major_base": "市场营销",
+          "min_mark": 232,
+          "rid": "26冀专文2414-43"
+        },
+        "score_line_hit": {
+          "college_code": "0614",
+          "major_code": "23",
+          "min_mark": 232,
+          "college_name": "海口经济学院[民办]",
+          "major_name": "市场营销(影视营销与制作)"
+        },
+        "would_write": "23冀专文0614-23"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2023,
+          "unv_name": "三亚城市职业学院[民办]",
+          "major_name": "市场营销(新媒体运营)",
+          "major_base": "市场营销",
+          "min_mark": 285,
+          "rid": "26冀专文2579-13"
+        },
+        "score_line_hit": {
+          "college_code": "1465",
+          "major_code": "11",
+          "min_mark": 285,
+          "college_name": "三亚城市职业学院[民办]",
+          "major_name": "市场营销(新媒体运营方向)"
+        },
+        "would_write": "23冀专文1465-11"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2023,
+          "unv_name": "三亚城市职业学院[民办]",
+          "major_name": "应用英语",
+          "major_base": "应用英语",
+          "min_mark": 239,
+          "rid": "26冀专文2579-19"
+        },
+        "score_line_hit": {
+          "college_code": "1465",
+          "major_code": "17",
+          "min_mark": 239,
+          "college_name": "三亚城市职业学院[民办]",
+          "major_name": "应用英语(国际专本连读)"
+        },
+        "would_write": "23冀专文1465-17"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2023,
+          "unv_name": "三亚理工职业学院[民办]",
+          "major_name": "旅游管理",
+          "major_base": "旅游管理",
+          "min_mark": 262,
+          "rid": "26冀专文2582-05"
+        },
+        "score_line_hit": {
+          "college_code": "1468",
+          "major_code": "08",
+          "min_mark": 262,
+          "college_name": "三亚理工职业学院[民办]",
+          "major_name": "旅游管理(游艇服务与管理)"
+        },
+        "would_write": "23冀专文1468-08"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2023,
+          "unv_name": "自贡职业技术学院[民办]",
+          "major_name": "应急救援技术",
+          "major_base": "应急救援技术",
+          "min_mark": 233,
+          "rid": "26冀专文2808-02"
+        },
+        "score_line_hit": {
+          "college_code": "2360",
+          "major_code": "01",
+          "min_mark": 233,
+          "college_name": "自贡职业技术学院[民办]",
+          "major_name": "应急救援技术(消防应急救援与安全管理)"
+        },
+        "would_write": "23冀专文2360-01"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2023,
+          "unv_name": "北京经济技术职业学院[民办]",
+          "major_name": "学前教育(迪帆幼儿园班)",
+          "major_base": "学前教育",
+          "min_mark": 317,
+          "rid": "26冀专文2256-07"
+        },
+        "score_line_hit": {
+          "college_code": "0125",
+          "major_code": "08",
+          "min_mark": 317,
+          "college_name": "北京经济技术职业学院[民办]",
+          "major_name": "学前教育(幼儿园订单班)"
+        },
+        "would_write": "23冀专文0125-08"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2023,
+          "unv_name": "海口经济学院[民办]",
+          "major_name": "国际经济与贸易(跨境电商)",
+          "major_base": "国际经济与贸易",
+          "min_mark": 221,
+          "rid": "26冀专文2414-40"
+        },
+        "score_line_hit": {
+          "college_code": "0614",
+          "major_code": "20",
+          "min_mark": 221,
+          "college_name": "海口经济学院[民办]",
+          "major_name": "国际经济与贸易(跨境电子商务)"
+        },
+        "would_write": "23冀专文0614-20"
+      }
+    ],
+    "2024": [
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2024,
+          "unv_name": "贵州城市职业学院[民办]",
+          "major_name": "大数据技术(华为人工智能方向)",
+          "major_base": "大数据技术",
+          "min_mark": 256,
+          "rid": "26冀专文2388-19"
+        },
+        "score_line_hit": {
+          "college_code": "0616",
+          "major_code": "05",
+          "min_mark": 256,
+          "college_name": "贵州城市职业学院[民办]",
+          "major_name": "大数据技术"
+        },
+        "would_write": "24冀专文0616-05"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2024,
+          "unv_name": "三亚城市职业学院[民办]",
+          "major_name": "市场营销(新媒体运营)",
+          "major_base": "市场营销",
+          "min_mark": 270,
+          "rid": "26冀专文2579-13"
+        },
+        "score_line_hit": {
+          "college_code": "1636",
+          "major_code": "11",
+          "min_mark": 270,
+          "college_name": "三亚城市职业学院[民办]",
+          "major_name": "市场营销(新媒体运营方向)"
+        },
+        "would_write": "24冀专文1636-11"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2024,
+          "unv_name": "三亚城市职业学院[民办]",
+          "major_name": "应用英语",
+          "major_base": "应用英语",
+          "min_mark": 291,
+          "rid": "26冀专文2579-19"
+        },
+        "score_line_hit": {
+          "college_code": "1636",
+          "major_code": "17",
+          "min_mark": 291,
+          "college_name": "三亚城市职业学院[民办]",
+          "major_name": "应用英语(国际专本连读)"
+        },
+        "would_write": "24冀专文1636-17"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2024,
+          "unv_name": "四川电子机械职业技术学院[民办]",
+          "major_name": "电子商务",
+          "major_base": "电子商务",
+          "min_mark": 257,
+          "rid": "26冀专文2647-09"
+        },
+        "score_line_hit": {
+          "college_code": "1930",
+          "major_code": "07",
+          "min_mark": 257,
+          "college_name": "四川电子机械职业技术学院[民办]",
+          "major_name": "电子商务(新媒体电商)"
+        },
+        "would_write": "24冀专文1930-07"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2024,
+          "unv_name": "四川文轩职业学院[民办]",
+          "major_name": "智慧健康养老服务与管理(高级养老机构老年照护)",
+          "major_base": "智慧健康养老服务与管理",
+          "min_mark": 253,
+          "rid": "26冀专文2656-43"
+        },
+        "score_line_hit": {
+          "college_code": "1955",
+          "major_code": "37",
+          "min_mark": 253,
+          "college_name": "四川文轩职业学院[民办]",
+          "major_name": "智慧健康养老服务与管理"
+        },
+        "would_write": "24冀专文1955-37"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2024,
+          "unv_name": "四川文轩职业学院[民办]",
+          "major_name": "智慧健康养老服务与管理(老年养生服务)",
+          "major_base": "智慧健康养老服务与管理",
+          "min_mark": 253,
+          "rid": "26冀专文2656-44"
+        },
+        "score_line_hit": {
+          "college_code": "1955",
+          "major_code": "37",
+          "min_mark": 253,
+          "college_name": "四川文轩职业学院[民办]",
+          "major_name": "智慧健康养老服务与管理"
+        },
+        "would_write": "24冀专文1955-37"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2024,
+          "unv_name": "张家界学院[民办]",
+          "major_name": "护理(重症护理方向)",
+          "major_base": "护理",
+          "min_mark": 328,
+          "rid": "26冀专文2782-07"
+        },
+        "score_line_hit": {
+          "college_code": "2451",
+          "major_code": "03",
+          "min_mark": 328,
+          "college_name": "张家界学院[民办]",
+          "major_name": "护理"
+        },
+        "would_write": "24冀专文2451-03"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2024,
+          "unv_name": "张家界学院[民办]",
+          "major_name": "护理(艺术护理方向)",
+          "major_base": "护理",
+          "min_mark": 328,
+          "rid": "26冀专文2782-08"
+        },
+        "score_line_hit": {
+          "college_code": "2451",
+          "major_code": "03",
+          "min_mark": 328,
+          "college_name": "张家界学院[民办]",
+          "major_name": "护理"
+        },
+        "would_write": "24冀专文2451-03"
+      }
+    ],
+    "2025": [
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2025,
+          "unv_name": "贵州城市职业学院[民办]",
+          "major_name": "大数据技术(华为人工智能方向)",
+          "major_base": "大数据技术",
+          "min_mark": 222,
+          "rid": "26冀专文2388-19"
+        },
+        "score_line_hit": {
+          "college_code": "2227",
+          "major_code": "13",
+          "min_mark": 222,
+          "college_name": "贵州城市职业学院[民办]",
+          "major_name": "大数据技术"
+        },
+        "would_write": "25冀专文2227-13"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2025,
+          "unv_name": "海口经济学院[民办]",
+          "major_name": "健康管理(公共服务)",
+          "major_base": "健康管理",
+          "min_mark": 201,
+          "rid": "26冀专文2414-35"
+        },
+        "score_line_hit": {
+          "college_code": "2252",
+          "major_code": "19",
+          "min_mark": 201,
+          "college_name": "海口经济学院[民办]",
+          "major_name": "健康管理"
+        },
+        "would_write": "25冀专文2252-19"
+      },
+      {
+        "reason": "fuzzy_major_mark_unique",
+        "basis": "宽松专业名多条, 再用历史最低分唯一命中 score_line.min_mark",
+        "hist": {
+          "year": 2025,
+          "unv_name": "海口经济学院[民办]",
+          "major_name": "市场营销",
+          "major_base": "市场营销",
+          "min_mark": 202,
+          "rid": "26冀专文2414-43"
+        },
+        "score_line_hit": {
+          "college_code": "2252",
+          "major_code": "26",
+          "min_mark": 202,
+          "college_name": "海口经济学院[民办]",
+          "major_name": "市场营销(影视营销与制作)"
+        }
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2025,
+          "unv_name": "海口经济学院[民办]",
+          "major_name": "旅游管理(游艇)",
+          "major_base": "旅游管理",
+          "min_mark": 214,
+          "rid": "26冀专文2414-53"
+        },
+        "score_line_hit": {
+          "college_code": "2252",
+          "major_code": "29",
+          "min_mark": 214,
+          "college_name": "海口经济学院[民办]",
+          "major_name": "旅游管理(含智慧旅游、数字文旅方向)"
+        },
+        "would_write": "25冀专文2252-29"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2025,
+          "unv_name": "江西工商职业技术学院[民办]",
+          "major_name": "护理(中外合作办学)",
+          "major_base": "护理",
+          "min_mark": 200,
+          "rid": "26冀专文2474-14"
+        },
+        "score_line_hit": {
+          "college_code": "2311",
+          "major_code": "04",
+          "min_mark": 363,
+          "college_name": "江西工商职业技术学院[民办]",
+          "major_name": "护理"
+        },
+        "would_write": "25冀专文2311-04"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2025,
+          "unv_name": "四川文轩职业学院[民办]",
+          "major_name": "智慧健康养老服务与管理(高级养老机构老年照护)",
+          "major_base": "智慧健康养老服务与管理",
+          "min_mark": 271,
+          "rid": "26冀专文2656-43"
+        },
+        "score_line_hit": {
+          "college_code": "2487",
+          "major_code": "38",
+          "min_mark": 271,
+          "college_name": "四川文轩职业学院[民办]",
+          "major_name": "智慧健康养老服务与管理"
+        },
+        "would_write": "25冀专文2487-38"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2025,
+          "unv_name": "四川文轩职业学院[民办]",
+          "major_name": "智慧健康养老服务与管理(老年养生服务)",
+          "major_base": "智慧健康养老服务与管理",
+          "min_mark": 271,
+          "rid": "26冀专文2656-44"
+        },
+        "score_line_hit": {
+          "college_code": "2487",
+          "major_code": "38",
+          "min_mark": 271,
+          "college_name": "四川文轩职业学院[民办]",
+          "major_name": "智慧健康养老服务与管理"
+        },
+        "would_write": "25冀专文2487-38"
+      },
+      {
+        "reason": "fuzzy_major_unique",
+        "basis": "同年同批同科类 + 归一化校名相同 + 专业名去括号后相同, 且唯一",
+        "hist": {
+          "year": 2025,
+          "unv_name": "自贡职业技术学院[民办]",
+          "major_name": "计算机应用技术",
+          "major_base": "计算机应用技术",
+          "min_mark": 214,
+          "rid": "26冀专文2808-07"
+        },
+        "score_line_hit": {
+          "college_code": "2633",
+          "major_code": "07",
+          "min_mark": 214,
+          "college_name": "自贡职业技术学院[民办]",
+          "major_name": "计算机应用技术(彩灯仿真设计技术)"
+        },
+        "would_write": "25冀专文2633-07"
+      }
+    ]
+  },
+  "evidence_cannot_fill_samples": {
+    "2022": [
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2022,
+          "unv_name": "福州墨尔本理工职业学院[中外合作办学]",
+          "major_name": "休闲服务与管理(中外合作办学)",
+          "major_base": "休闲服务与管理",
+          "min_mark": 200,
+          "rid": "26冀专文0394-09"
+        }
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2022,
+          "unv_name": "巴中职业技术学院[民办]",
+          "major_name": "医学检验技术",
+          "major_base": "医学检验技术",
+          "min_mark": 200,
+          "rid": "26冀专文2243-07"
+        }
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2022,
+          "unv_name": "长春健康职业学院[民办]",
+          "major_name": "助产",
+          "major_base": "助产",
+          "min_mark": 200,
+          "rid": "26冀专文2272-09"
+        }
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2022,
+          "unv_name": "重庆科技职业学院[民办]",
+          "major_name": "物联网应用技术",
+          "major_base": "物联网应用技术",
+          "min_mark": 200,
+          "rid": "26冀专文2316-13"
+        }
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2022,
+          "unv_name": "重庆轻工职业学院[民办]",
+          "major_name": "药物制剂技术",
+          "major_base": "药物制剂技术",
+          "min_mark": 200,
+          "rid": "26冀专文2319-10"
+        }
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2022,
+          "unv_name": "德阳城市轨道交通职业学院[民办]",
+          "major_name": "城市轨道交通供配电技术",
+          "major_base": "城市轨道交通供配电技术",
+          "min_mark": 200,
+          "rid": "26冀专文2340-15"
+        }
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2022,
+          "unv_name": "德阳科贸职业学院[民办]",
+          "major_name": "医学美容技术",
+          "major_base": "医学美容技术",
+          "min_mark": 200,
+          "rid": "26冀专文2341-11"
+        }
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2022,
+          "unv_name": "德阳科贸职业学院[民办]",
+          "major_name": "公共卫生管理",
+          "major_base": "公共卫生管理",
+          "min_mark": 200,
+          "rid": "26冀专文2341-13"
+        }
+      }
+    ],
+    "2023": [
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2023,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "昆明科技职业大学[民办]",
+          "norm_unv": "昆明科技职业大学",
+          "major_name": "护理",
+          "min_mark": 229,
+          "rid": "26冀专文2497-07"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2023,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "长春医药职业学院[民办]",
+          "norm_unv": "长春医药职业学院",
+          "major_name": "医学美容技术",
+          "min_mark": 258,
+          "rid": "26冀专文2278-10"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2023,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "贵州工商职业大学[民办]",
+          "norm_unv": "贵州工商职业大学",
+          "major_name": "建筑室内设计",
+          "min_mark": 251,
+          "rid": "26冀专文2391-01"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2023,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "长春医药职业学院[民办]",
+          "norm_unv": "长春医药职业学院",
+          "major_name": "口腔医学技术",
+          "min_mark": 280,
+          "rid": "26冀专文2278-09"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2023,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "南昌科技职业大学[民办]",
+          "norm_unv": "南昌科技职业大学",
+          "major_name": "动漫制作技术",
+          "min_mark": 345,
+          "rid": "26冀专文2533-04"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2023,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "长春医药职业学院[民办]",
+          "norm_unv": "长春医药职业学院",
+          "major_name": "护理",
+          "min_mark": 300,
+          "rid": "26冀专文2278-03"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2023,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "贵州工商职业大学[民办]",
+          "norm_unv": "贵州工商职业大学",
+          "major_name": "计算机网络技术",
+          "min_mark": 247,
+          "rid": "26冀专文2391-13"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2023,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "贵州工商职业大学[民办]",
+          "norm_unv": "贵州工商职业大学",
+          "major_name": "药品经营与管理",
+          "min_mark": 240,
+          "rid": "26冀专文2391-08"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      }
+    ],
+    "2024": [
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2024,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "昆明科技职业大学[民办]",
+          "norm_unv": "昆明科技职业大学",
+          "major_name": "护理",
+          "min_mark": 249,
+          "rid": "26冀专文2497-07"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2024,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "长春医药职业学院[民办]",
+          "norm_unv": "长春医药职业学院",
+          "major_name": "口腔医学技术",
+          "min_mark": 295,
+          "rid": "26冀专文2278-09"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2024,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "贵州工商职业大学[民办]",
+          "norm_unv": "贵州工商职业大学",
+          "major_name": "大数据技术(华为技术班)",
+          "min_mark": 254,
+          "rid": "26冀专文2391-14"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2024,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "南昌科技职业大学[民办]",
+          "norm_unv": "南昌科技职业大学",
+          "major_name": "动漫制作技术",
+          "min_mark": 261,
+          "rid": "26冀专文2533-04"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2024,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "长春医药职业学院[民办]",
+          "norm_unv": "长春医药职业学院",
+          "major_name": "医学检验技术",
+          "min_mark": 290,
+          "rid": "26冀专文2278-07"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2024,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "昆明科技职业大学[民办]",
+          "norm_unv": "昆明科技职业大学",
+          "major_name": "医学影像技术",
+          "min_mark": 254,
+          "rid": "26冀专文2497-08"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2024,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "长春医药职业学院[民办]",
+          "norm_unv": "长春医药职业学院",
+          "major_name": "康复治疗技术",
+          "min_mark": 281,
+          "rid": "26冀专文2278-11"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2024,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "长春医药职业学院[民办]",
+          "norm_unv": "长春医药职业学院",
+          "major_name": "医学影像技术",
+          "min_mark": 314,
+          "rid": "26冀专文2278-08"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      }
+    ],
+    "2025": [
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2025,
+          "unv_name": "福州墨尔本理工职业学院[中外合作办学]",
+          "major_name": "休闲服务与管理(中外合作办学)",
+          "major_base": "休闲服务与管理",
+          "min_mark": 200,
+          "rid": "26冀专文0394-09"
+        }
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2025,
+          "unv_name": "广西经济职业学院[民办]",
+          "major_name": "食品检验检测技术",
+          "major_base": "食品检验检测技术",
+          "min_mark": 200,
+          "rid": "26冀专文2366-06"
+        }
+      },
+      {
+        "reason": "no_college_in_score_line",
+        "hist": {
+          "year": 2025,
+          "batch": "专科批",
+          "subject": "历史类",
+          "unv_name": "贵州工商职业大学[民办]",
+          "norm_unv": "贵州工商职业大学",
+          "major_name": "城市轨道交通运营管理",
+          "min_mark": 254,
+          "rid": "26冀专文2391-10"
+        },
+        "basis": "score_line 同年同批同科类下, 归一化校名无此校"
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2025,
+          "unv_name": "丽江文化旅游学院[民办]",
+          "major_name": "研学旅行管理与服务",
+          "major_base": "研学旅行管理与服务",
+          "min_mark": 200,
+          "rid": "26冀专文2506-20"
+        }
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2025,
+          "unv_name": "南充科技职业学院[民办]",
+          "major_name": "智能机器人技术",
+          "major_base": "智能机器人技术",
+          "min_mark": 200,
+          "rid": "26冀专文2539-09"
+        }
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2025,
+          "unv_name": "三亚护理职业学院[民办]",
+          "major_name": "口腔卫生保健",
+          "major_base": "口腔卫生保健",
+          "min_mark": 200,
+          "rid": "26冀专文2581-16"
+        }
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2025,
+          "unv_name": "四川汽车职业技术学院[民办]",
+          "major_name": "大数据技术",
+          "major_base": "大数据技术",
+          "min_mark": 200,
+          "rid": "26冀专文2652-06"
+        }
+      },
+      {
+        "reason": "college_ok_major_still_miss",
+        "basis": "当年投档有该校, 精确/宽松专业名均无唯一命中",
+        "hist": {
+          "year": 2025,
+          "unv_name": "云南理工职业学院[民办]",
+          "major_name": "城市轨道交通机电技术",
+          "major_base": "城市轨道交通机电技术",
+          "min_mark": 200,
+          "rid": "26冀专文2774-10"
+        }
+      }
+    ]
+  },
+  "totals": {
+    "history_2022_2025": 129548,
+    "missing_code": 13654,
+    "can_fill_fuzzy_unique": 4795,
+    "still_missing_after_fuzzy": 8859
+  }
+}
