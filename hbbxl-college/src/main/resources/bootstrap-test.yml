@@ -1,6 +1,0 @@
-# 测试环境
-spring:
-  cloud:
-    nacos:
-      discovery:
-        namespace: hbbxl-test

@@ -1,0 +1,24 @@
+# Windows 本地开发
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 81.70.105.12:8848
+        username: nacos
+        password: Wyl123...
+        namespace: hbbxl-test
+      config:
+        server-addr: 81.70.105.12:8848
+        username: nacos
+        password: Wyl123...
+        namespace: hbbxl-test
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+  data:
+    redis:
+      host: 81.70.105.12
+      port: 6379
+      password: Wyl123...
+      database: 0

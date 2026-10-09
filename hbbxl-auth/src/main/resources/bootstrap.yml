@@ -3,27 +3,16 @@ server:
 
 spring:
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   application:
     name: hbbxl-auth
   cloud:
     nacos:
-      discovery:
-        server-addr: 81.70.105.12:8848
-        username: nacos
-        password: Wyl123...
       config:
-        server-addr: 81.70.105.12:8848
-        username: nacos
-        password: Wyl123...
         file-extension: yaml
         import-check:
           enabled: false
-
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 3
@@ -31,13 +20,6 @@ spring:
       max-lifetime: 120000
       keepalive-time: 30000
       validation-timeout: 5000
-
-  data:
-    redis:
-      host: 81.70.105.12
-      port: 6379
-      password: Wyl123...
-      database: 0
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml

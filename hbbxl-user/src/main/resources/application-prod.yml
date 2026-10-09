@@ -1,4 +1,4 @@
-# 生产环境 = Mac Docker Desktop（中间件经 host.docker.internal）
+# 生产 = Mac Docker Desktop
 spring:
   cloud:
     nacos:

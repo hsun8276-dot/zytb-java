@@ -17,7 +17,8 @@
 ## 环境约定
 
 - **开发(Windows)**: `start-all.ps1` → profile `dev`；MySQL `127.0.0.1:3306/zytb`；Nacos/Redis 见 `bootstrap.yml`
-- **生产(Mac Docker Desktop，无独立服务器)**: Jenkins 打 `linux/arm64`+`prod` 镜像；Mac 上 `docker-compose.mac.yml`；中间件 `host.docker.internal`（`bootstrap-prod.yml`）；命名空间 `hbbxl`
+- **生产(Mac Docker Desktop，无独立服务器)**: Jenkins 打 `linux/arm64`+`prod` 镜像；Mac 上 `docker-compose.mac.yml`；中间件见 `application-prod.yml`（`host.docker.internal`）；命名空间 `hbbxl`
+- **配置结构**: 每服务 `bootstrap.yml` + `application-dev.yml` / `application-test.yml` / `application-prod.yml`
 - 表结构脚本见 docs/sql/rebuild/；Redis token 前缀 `hbbxl:token:`
 
 ## 快速开始
