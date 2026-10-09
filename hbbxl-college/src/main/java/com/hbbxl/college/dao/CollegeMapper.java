@@ -24,7 +24,8 @@ public interface CollegeMapper extends BaseMapper<College> {
     @Select("SELECT COUNT(DISTINCT province) FROM college WHERE province IS NOT NULL AND province != ''")
     long countProvinces();
 
-    @Select("SELECT COUNT(*) FROM college_major")
+    /** 招生专业信息条数(河北当年志愿单元 recruit_major) */
+    @Select("SELECT COUNT(*) FROM recruit_major")
     long countMajors();
 
     @Select("SELECT DISTINCT province FROM college " +
