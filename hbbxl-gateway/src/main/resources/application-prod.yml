@@ -1,19 +1,8 @@
-# 生产 = Mac Docker Desktop（同网络；容器名 dz-*）
+# Mac Docker Desktop 生产
 spring:
   data:
     redis:
-      host: dz-redis
-      port: 6379
-      password: ""
-  cloud:
-    nacos:
-      discovery:
-        server-addr: dz-nacos:8848
-        username: nacos
-        password: nacos
-        namespace: hbbxl
-      config:
-        server-addr: dz-nacos:8848
-        username: nacos
-        password: nacos
-        namespace: hbbxl
+      host: ${REDIS_HOST:dz-redis}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:dz_redis_2024}
+      database: 0

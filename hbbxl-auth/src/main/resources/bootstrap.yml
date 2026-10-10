@@ -3,12 +3,21 @@ server:
 
 spring:
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
+    active: ${SPRING_PROFILES_ACTIVE:prod}
   application:
     name: hbbxl-auth
   cloud:
     nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:dz-nacos:8848}
+        namespace: ${NACOS_NAMESPACE:hbbxl}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
       config:
+        server-addr: ${NACOS_ADDR:dz-nacos:8848}
+        namespace: ${NACOS_NAMESPACE:hbbxl}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
         file-extension: yaml
         import-check:
           enabled: false

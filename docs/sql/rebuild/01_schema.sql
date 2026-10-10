@@ -1,10 +1,12 @@
 -- =====================================================
 -- 志愿填报系统(zytb) - 表结构(01)
 -- 可重复执行(CREATE TABLE IF NOT EXISTS)
--- 依赖: 数据库 zytb (utf8mb4)
 -- =====================================================
 
 SET NAMES utf8mb4;
+
+CREATE DATABASE IF NOT EXISTS zytb DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE zytb;
 
 -- ----------------------------------------------------
 -- 1. 用户表

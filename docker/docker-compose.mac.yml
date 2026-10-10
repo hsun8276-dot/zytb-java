@@ -1,18 +1,19 @@
-# Mac Docker Desktop（M4）：bridge 网络 hbbxl-net，与已有 MySQL/Redis/Nacos/MinIO 用容器名互通。
-# 不要用 host.docker.internal。
-#
-# 用法:
+# Mac Docker Desktop（M4）生产编排
 #   docker network create hbbxl-net 2>/dev/null || true
 #   docker network connect hbbxl-net dz-mysql
 #   docker network connect hbbxl-net dz-redis
 #   docker network connect hbbxl-net dz-nacos
 #   docker network connect hbbxl-net dz-minio
-#   cp .env.mac.example .env.mac   # 按实际密码修改
+#   cp .env.mac.example .env.mac && 按密码修改
 #   docker compose -p hbbxl -f docker-compose.mac.yml --env-file .env.mac up -d
 
 x-app-env: &app-env
   TZ: Asia/Shanghai
   SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+  NACOS_ADDR: ${NACOS_ADDR:-dz-nacos:8848}
+  NACOS_NAMESPACE: ${NACOS_NAMESPACE:-hbbxl}
+  NACOS_USERNAME: ${NACOS_USERNAME:-nacos}
+  NACOS_PASSWORD: ${NACOS_PASSWORD:-nacos}
   SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: ${NACOS_ADDR:-dz-nacos:8848}
   SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: ${NACOS_ADDR:-dz-nacos:8848}
   SPRING_CLOUD_NACOS_DISCOVERY_USERNAME: ${NACOS_USERNAME:-nacos}
@@ -21,17 +22,32 @@ x-app-env: &app-env
   SPRING_CLOUD_NACOS_CONFIG_PASSWORD: ${NACOS_PASSWORD:-nacos}
   SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ${NACOS_NAMESPACE:-hbbxl}
   SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ${NACOS_NAMESPACE:-hbbxl}
+  MYSQL_HOST: ${MYSQL_HOST:-dz-mysql}
+  MYSQL_PORT: ${MYSQL_PORT:-3306}
+  MYSQL_USER: ${MYSQL_USER:-root}
+  MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dz_root_2024}
   SPRING_DATASOURCE_URL: ${MYSQL_JDBC:-jdbc:mysql://dz-mysql:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
   SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-root}
-  SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-root}
+  SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-dz_root_2024}
+  REDIS_HOST: ${REDIS_HOST:-dz-redis}
+  REDIS_PORT: ${REDIS_PORT:-6379}
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-dz_redis_2024}
   SPRING_DATA_REDIS_HOST: ${REDIS_HOST:-dz-redis}
   SPRING_DATA_REDIS_PORT: ${REDIS_PORT:-6379}
-  SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+  SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-dz_redis_2024}
+  MINIO_HOST: ${MINIO_HOST:-dz-minio}
+  MINIO_PORT: ${MINIO_PORT:-9000}
   MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://dz-minio:9000}
   MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-http://127.0.0.1:9000}
   MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minio}
   MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
   MINIO_BUCKET: ${MINIO_BUCKET:-hbbxl}
+
+x-health: &health
+  interval: 15s
+  timeout: 5s
+  retries: 20
+  start_period: 90s
 
 services:
   hbbxl-gateway:
@@ -46,6 +62,9 @@ services:
       <<: *app-env
     networks: [hbbxl-net]
     mem_limit: 512m
+    healthcheck:
+      <<: *health
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8800/actuator/health || exit 1"]
 
   hbbxl-auth:
     image: ${REGISTRY_PREFIX:-}hbbxl/auth:latest
@@ -59,6 +78,9 @@ services:
       <<: *app-env
     networks: [hbbxl-net]
     mem_limit: 352m
+    healthcheck:
+      <<: *health
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8801/actuator/health || exit 1"]
 
   hbbxl-user:
     image: ${REGISTRY_PREFIX:-}hbbxl/user:latest
@@ -72,6 +94,9 @@ services:
       <<: *app-env
     networks: [hbbxl-net]
     mem_limit: 352m
+    healthcheck:
+      <<: *health
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8802/actuator/health || exit 1"]
 
   hbbxl-college:
     image: ${REGISTRY_PREFIX:-}hbbxl/college:latest
@@ -85,6 +110,9 @@ services:
       <<: *app-env
     networks: [hbbxl-net]
     mem_limit: 352m
+    healthcheck:
+      <<: *health
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8803/actuator/health || exit 1"]
 
   hbbxl-score:
     image: ${REGISTRY_PREFIX:-}hbbxl/score:latest
@@ -98,6 +126,9 @@ services:
       <<: *app-env
     networks: [hbbxl-net]
     mem_limit: 352m
+    healthcheck:
+      <<: *health
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8804/actuator/health || exit 1"]
 
   hbbxl-aspiration:
     image: ${REGISTRY_PREFIX:-}hbbxl/aspiration:latest
@@ -111,6 +142,9 @@ services:
       <<: *app-env
     networks: [hbbxl-net]
     mem_limit: 512m
+    healthcheck:
+      <<: *health
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8805/actuator/health || exit 1"]
 
   hbbxl-recommend:
     image: ${REGISTRY_PREFIX:-}hbbxl/recommend:latest
@@ -124,6 +158,9 @@ services:
       <<: *app-env
     networks: [hbbxl-net]
     mem_limit: 352m
+    healthcheck:
+      <<: *health
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8806/actuator/health || exit 1"]
 
   hbbxl-web:
     image: ${REGISTRY_PREFIX:-}hbbxl/web:latest
@@ -136,10 +173,11 @@ services:
     environment:
       TZ: Asia/Shanghai
       NGINX_PORT: "80"
-      # 走 compose 内网服务名，不要用 127.0.0.1
+      # 末尾不要带 /，保留 /api 前缀
       GATEWAY_UPSTREAM: hbbxl-gateway:8800
     depends_on:
-      - hbbxl-gateway
+      hbbxl-gateway:
+        condition: service_healthy
     networks: [hbbxl-net]
     mem_limit: 128m
 
@@ -147,3 +185,4 @@ networks:
   hbbxl-net:
     name: hbbxl-net
     driver: bridge
+    external: true

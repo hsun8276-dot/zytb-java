@@ -1,9 +1,16 @@
-# 志愿填报平台 - 全部服务持久启动脚本(脱离会话, 不怕终端关闭)
+# 志愿填报平台 - Windows 本地开发启动(profile=dev)
 # 用法: powershell -ExecutionPolicy Bypass -File start-all.ps1
-#       powershell -ExecutionPolicy Bypass -File start-all.ps1 auth   (只启动单个)
+#       powershell -ExecutionPolicy Bypass -File start-all.ps1 auth
 $REPO = "F:\hbbxl"
 $LOGS = "$REPO\logs"
 if (-not (Test-Path $LOGS)) { New-Item -ItemType Directory -Path $LOGS | Out-Null }
+
+# bootstrap 默认连 Mac 容器名；Windows 开发必须覆盖为远程/本机中间件
+$env:SPRING_PROFILES_ACTIVE = "dev"
+$env:NACOS_ADDR = "81.70.105.12:8848"
+$env:NACOS_NAMESPACE = "hbbxl-test"
+$env:NACOS_USERNAME = "nacos"
+$env:NACOS_PASSWORD = "Wyl123..."
 
 $SERVICES = @(
     @{name="gateway";      port=8800},

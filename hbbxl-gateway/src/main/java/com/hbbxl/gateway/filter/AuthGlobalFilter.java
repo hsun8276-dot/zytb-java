@@ -60,7 +60,10 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             "/swagger-ui",
             "/v3/api-docs",
             "/swagger-resources",
-            "/webjars"
+            "/webjars",
+            // Docker / K8s 健康检查
+            "/actuator/health",
+            "/actuator/info"
     );
 
     @Override

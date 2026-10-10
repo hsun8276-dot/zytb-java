@@ -1,0 +1,9 @@
+# 公共默认：供 Docker healthcheck 探测
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

@@ -1,13 +1,6 @@
-# 生产 = Mac Docker Desktop（同网络；容器名 dz-*）
+# Mac Docker Desktop 生产
 spring:
-  cloud:
-    nacos:
-      discovery:
-        server-addr: dz-nacos:8848
-        username: nacos
-        password: nacos
-        namespace: hbbxl
   datasource:
-    url: jdbc:mysql://dz-mysql:3306/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
-    username: root
-    password: root
+    url: jdbc:mysql://${MYSQL_HOST:dz-mysql}:${MYSQL_PORT:3306}/zytb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:dz_root_2024}
