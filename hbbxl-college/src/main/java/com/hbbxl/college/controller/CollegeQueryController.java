@@ -82,4 +82,55 @@ public class CollegeQueryController {
     public R<List<Map<String, Object>>> collegesByMajor(@RequestParam String majorName) {
         return R.ok(collegeQueryService.collegesByMajor(majorName));
     }
+
+    @Operation(summary = "专业查询 TransferPage · 层次(普本/职本/专科)")
+    @GetMapping("/majors/levels")
+    public R<List<Map<String, Object>>> majorLevels() {
+        return R.ok(collegeQueryService.majorLevels());
+    }
+
+    @Operation(summary = "专业查询 TransferPage · 左侧门类树")
+    @GetMapping("/majors/tree")
+    public R<List<Map<String, Object>>> majorTree(@RequestParam(defaultValue = "1") int level) {
+        return R.ok(collegeQueryService.majorTree(level));
+    }
+
+    @Operation(summary = "专业查询 TransferPage · 专业类下包含专业")
+    @GetMapping("/majors/group")
+    public R<Map<String, Object>> majorsByGroup(@RequestParam String code) {
+        return R.ok(collegeQueryService.majorsByGroup(code));
+    }
+
+    @Operation(summary = "职业查询 · 行业列表")
+    @GetMapping("/professions/industries")
+    public R<List<String>> professionIndustries() {
+        return R.ok(collegeQueryService.professionIndustries());
+    }
+
+    @Operation(summary = "职业查询 · 职业类别(按行业)")
+    @GetMapping("/professions/types")
+    public R<List<String>> professionTypes(@RequestParam String industry) {
+        return R.ok(collegeQueryService.professionOccTypes(industry));
+    }
+
+    @Operation(summary = "职业查询 · 列表检索")
+    @GetMapping("/professions/search")
+    public R<List<Map<String, Object>>> professionSearch(
+            @RequestParam(required = false) String industry,
+            @RequestParam(required = false) String occType,
+            @RequestParam(required = false) String occName) {
+        return R.ok(collegeQueryService.searchProfessions(industry, occType, occName));
+    }
+
+    @Operation(summary = "职业查询 · 详情")
+    @GetMapping("/professions/{occId}")
+    public R<Map<String, Object>> professionDetail(@PathVariable Integer occId) {
+        return R.ok(collegeQueryService.professionDetail(occId));
+    }
+
+    @Operation(summary = "职业查询 · 匹配专业")
+    @GetMapping("/professions/{occId}/majors")
+    public R<List<Map<String, Object>>> professionMajors(@PathVariable Integer occId) {
+        return R.ok(collegeQueryService.professionMajors(occId));
+    }
 }
